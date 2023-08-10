@@ -31,5 +31,5 @@ variables:
     ${KANIKO_EXECUTOR} \
       ${DOCKER_IMAGE_NAME:+--destination=${DOCKER_IMAGE_NAME}} \
       ${DOCKERFILE_CONTEXT:+--context=${DOCKERFILE_CONTEXT}} \
-      ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME} \
+      ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME}} \
       $(for label in ${DOCKER_IMAGE_LABELS};do echo --label=${label}; done)
