@@ -2,8 +2,6 @@ include: container-image-jobs.yaml
 
 build container image:
   extends: .kaniko build container image job
-  # rules:
-  # - exists:
-  #   - Dockerfile
-  variables:
-    KANIKO_EXECUTOR: echo
+  rules:
+  - exists:
+    - Dockerfile
