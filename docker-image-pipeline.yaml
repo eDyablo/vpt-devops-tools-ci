@@ -1,5 +1,8 @@
 include: docker-image-jobs.yaml
 
+stages:
+- build
+
 build docker image:
   extends: .kaniko build docker image job
   stage: build
