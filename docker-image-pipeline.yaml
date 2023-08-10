@@ -1,13 +1,9 @@
 include: docker-image-jobs.yaml
 
-stages:
-- build
-
 build docker image:
   extends: .kaniko build docker image job
-  stage: build
-  rules:
-  - exists:
-    - Dockerfile
+  # rules:
+  # - exists:
+  #   - Dockerfile
   variables:
     KANIKO_EXECUTOR: echo

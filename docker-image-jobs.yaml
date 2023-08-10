@@ -6,6 +6,7 @@ variables:
   KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.9.0-debug
 
 .kaniko build docker image job:
+  stage: build
   image: ${KANIKO_IMAGE}
   variables:
     DOCKER_IMAGE_BASE_NAME: ${CI_PROJECT_PATH_SLUG}
