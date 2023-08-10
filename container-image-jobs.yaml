@@ -1,0 +1,35 @@
+variables:
+  CONTAINER_IMAGE_REGISTRY_HOST: ${ARTIFACTORY_URL}
+  CONTAINER_IMAGE_REGISTRY_PASSWORD: ${ARTIFACTORY_PASSWORD}
+  CONTAINER_IMAGE_REGISTRY_USER: ${ARTIFACTORY_USER}
+  CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
+  KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.9.0-debug
+
+.kaniko build container image job:
+  stage: build
+  image: ${KANIKO_IMAGE}
+  variables:
+    CONTAINER_IMAGE_BASE_NAME: ${CI_PROJECT_PATH_SLUG}
+    DOCKERFILE_CONTEXT: ./
+    DOCKERFILE_NAME: Dockerfile
+    KANIKO_EXECUTOR: /kaniko/executor
+  script:
+  - | # Set docker image related variables
+    CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
+    if [ ! ${CONTAINER_IMAGE_TAG} ]; then
+      if [[ "${CI_COMMIT_BRANCH}" == "${CI_DEFAULT_BRANCH}" ]]; then
+        CONTAINER_IMAGE_TAG=""
+      else
+        CONTAINER_IMAGE_TAG="${CI_COMMIT_REF_SLUG}"
+        CONTAINER_IMAGE_LABELS="${CONTAINER_IMAGE_LABELS:+${CONTAINER_IMAGE_LABELS} }com.jfrog.artifactory.retention.maxDays=7"
+      fi
+    fi
+    CONTAINER_IMAGE_NAME="${CONTAINER_IMAGE_REPOSITORY}${CONTAINER_IMAGE_TAG:+:${CONTAINER_IMAGE_TAG}}"
+  - | # Authorize to docker registry
+    echo "{\"auths\":{\"${CONTAINER_IMAGE_REGISTRY_HOST}\":{\"auth\":\"$(echo -n ${CONTAINER_IMAGE_REGISTRY_USER}:${CONTAINER_IMAGE_REGISTRY_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
+  - | # Build and publish docker image
+    ${KANIKO_EXECUTOR} \
+      ${CONTAINER_IMAGE_NAME:+--destination=${CONTAINER_IMAGE_NAME}} \
+      ${DOCKERFILE_CONTEXT:+--context=${DOCKERFILE_CONTEXT}} \
+      ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME}} \
+      $(for label in ${CONTAINER_IMAGE_LABELS};do echo --label=${label}; done)
