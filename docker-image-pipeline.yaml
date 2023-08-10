@@ -2,6 +2,7 @@ include: docker-image-jobs.yaml
 
 build docker image:
   extends: .kaniko build docker image job
+  stage: build
   rules:
   - exists:
     - Dockerfile
