@@ -31,11 +31,12 @@ variables:
       fi
     fi
     CONTAINER_IMAGE_NAME="${CONTAINER_IMAGE_REPOSITORY}${CONTAINER_IMAGE_TAG:+:${CONTAINER_IMAGE_TAG}}"
-    list_append CONTAINER_IMAGE_LABELS "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    list_append CONTAINER_IMAGE_LABELS "org.opencontainers.image.revision=${CI_COMMIT_SHA}"
-    list_append CONTAINER_IMAGE_LABELS "org.opencontainers.image.source=${CI_PROJECT_URL}"
-    list_append CONTAINER_IMAGE_LABELS "org.opencontainers.image.vendor=ViaPath"
-    list_append CONTAINER_IMAGE_LABELS "org.opencontainers.image.version=${CI_COMMIT_TAG:-g${CI_COMMIT_SHORT_SHA}}"
+    list_append CONTAINER_IMAGE_LABELS \
+      "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      "org.opencontainers.image.revision=${CI_COMMIT_SHA}" \
+      "org.opencontainers.image.source=${CI_PROJECT_URL}" \
+      "org.opencontainers.image.vendor=ViaPath" \
+      "org.opencontainers.image.version=${CI_COMMIT_TAG:-g${CI_COMMIT_SHORT_SHA}}"
   - > # Authorize to container image registry
     echo
     "{\"auths\":{\"${CONTAINER_IMAGE_REGISTRY_HOST}\":{\"auth\":\"$(echo -n ${CONTAINER_IMAGE_REGISTRY_USER}:${CONTAINER_IMAGE_REGISTRY_PASSWORD} | base64)\"}}}"
