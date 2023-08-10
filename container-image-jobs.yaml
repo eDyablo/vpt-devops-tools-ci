@@ -14,7 +14,7 @@ variables:
     DOCKERFILE_NAME: Dockerfile
     KANIKO_EXECUTOR: /kaniko/executor
   script:
-  - | # Set docker image related variables
+  - | # Set container image related variables
     CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
     if [ ! ${CONTAINER_IMAGE_TAG} ]; then
       if [[ "${CI_COMMIT_BRANCH}" == "${CI_DEFAULT_BRANCH}" ]]; then
@@ -25,9 +25,9 @@ variables:
       fi
     fi
     CONTAINER_IMAGE_NAME="${CONTAINER_IMAGE_REPOSITORY}${CONTAINER_IMAGE_TAG:+:${CONTAINER_IMAGE_TAG}}"
-  - | # Authorize to docker registry
+  - | # Authorize to container image registry
     echo "{\"auths\":{\"${CONTAINER_IMAGE_REGISTRY_HOST}\":{\"auth\":\"$(echo -n ${CONTAINER_IMAGE_REGISTRY_USER}:${CONTAINER_IMAGE_REGISTRY_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
-  - | # Build and publish docker image
+  - | # Build and publish container image
     ${KANIKO_EXECUTOR} \
       ${CONTAINER_IMAGE_NAME:+--destination=${CONTAINER_IMAGE_NAME}} \
       ${DOCKERFILE_CONTEXT:+--context=${DOCKERFILE_CONTEXT}} \
