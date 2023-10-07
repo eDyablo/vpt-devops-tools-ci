@@ -1,0 +1,66 @@
+variables:
+  CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
+  HELMFILE_VALUES_FILE_SRC: .gitlab-ci.values.yaml
+  KUBE_CONTEXT: ' ' # use runner's default kubernetes settings
+
+.helmfile job:
+  image: ${CONTAINER_IMAGE_REGISTRY}/devops-tools-helmfile-job-runner
+  before_script:
+  - > # Set environment variables
+    HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT:-$CI_ENVIRONMENT_SLUG}
+  - > # Render helmfile values file
+    [ $HELMFILE_VALUES_FILE_SRC ]
+    && ([ -f "$HELMFILE_VALUES_FILE_SRC" ]
+    && eval "echo \"$(cat $HELMFILE_VALUES_FILE_SRC)\""
+    || echo '')
+    > ${HELMFILE_VALUES_FILE_SRC}.rendered
+    && HELMFILE_VALUES_FILE=${HELMFILE_VALUES_FILE_SRC}.rendered
+
+.deploy helmfile job:
+  extends: .helmfile job
+  stage: deploy
+  environment:
+    action: start
+    url: $ENVIRONMENT_URL
+  resource_group: $CI_ENVIRONMENT_NAME
+  artifacts:
+    name: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
+    paths:
+    - infrastructure/**/*
+    - helmfile.yaml
+    reports:
+      dotenv: deploy.env
+  script:
+  - > # list releases defined in state file
+    helmfile list
+    --skip-charts
+    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+    ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+  - > # lint charts from state file
+    helmfile lint
+    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+    ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+  - > # apply all resources from state file only when there are changes
+    helmfile apply
+    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+    ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+  - > # test charts from state file
+    helmfile test
+    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+    ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+
+.destroy helmfile job:
+  extends: .helmfile job
+  stage: .post
+  when: manual
+  environment:
+    action: stop
+  resource_group: !reference [.deploy helmfile job, resource_group]
+  variables:
+    GIT_STRATEGY: none
+  script:
+  - > # destroy and then purge releases
+    helmfile destroy
+    --skip-charts
+    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+    ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
