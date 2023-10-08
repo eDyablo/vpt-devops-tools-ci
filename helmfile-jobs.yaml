@@ -26,8 +26,9 @@ variables:
   artifacts:
     name: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
     paths:
-    - infrastructure/**/*
+    - $HELMFILE_VALUES_FILE_SRC
     - helmfile.yaml
+    - infrastructure/**/*
     reports:
       dotenv: deploy.env
   script:
