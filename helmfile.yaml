@@ -1,0 +1,81 @@
+helmDefaults:
+  kubeContext: {{ env "KUBE_CONTEXT" | default .Environment.Name }}
+  wait: true
+
+{{- $rootDir := .Values | getOrNil "rootDir" | default "." }}
+{{- $infrastructurePath := list $rootDir "infrastructure" | join "/" }}
+
+{{/*
+Walks through file system entries under infrastructure directory and builds
+environments from it. Every subdirectory name defines an environment and
+values.yaml under the subdirectory defines environment specific values that get
+merged with global values. The environment values have precedence over global
+values.
+*/}}
+{{- $environments := dict }}
+{{- range $_, $entry := readDirEntries $infrastructurePath }}
+  {{- if $entry.IsDir }}
+    {{- $envPath := list $infrastructurePath $entry.Name | join "/" }}
+    {{- $environment := dict "path" $envPath }}
+    {{- $environments := set $environments $entry.Name $environment }}
+  {{- end }}
+{{- end }}
+
+environments: # generated from $environments collected by the code above
+  {{- range $key, $data := $environments }}
+  {{ $key }}:
+    values:
+    - infrastructure/values.yaml
+    - {{ list (get "path" $data) "values.yaml" | join "/" }}
+    {{ with (env "DEPLOYMENT_NAME_PREFIX") }}
+    - deploymentNamePrefix: {{ . }}
+    {{- end }}
+    {{ with (env "DEPLOYMENT_NAME_SUFFIX") }}
+    - deploymentNameSuffix: {{ . }}
+    {{- end }}
+  {{- end }}
+
+---
+{{- $rootDir := .Values | getOrNil "rootDir" | default "." }}
+{{- $infrastructurePath := list $rootDir "infrastructure" | join "/" }}
+
+{{/*
+Walks through file system entries under infrastructure directory and builds
+a set of helmfiles from it. Every .yaml file except values.yaml under each
+subdirectory is treated as sub-helmfile.
+*/}}
+{{- $environments := dict }}
+{{- range $_, $entry := readDirEntries $infrastructurePath }}
+  {{- if $entry.IsDir }}
+    {{- $envPath := list $infrastructurePath $entry.Name | join "/" }}
+    {{- $deployments := dict }}
+    {{- range $_, $path := readDir $envPath }}
+      {{- if not (eq "values.yaml" ($path | base)) }}
+        {{- $deploymentName := $path | trimSuffix (ext $path) | base }}
+        {{- $deployment := dict "path" $path }}
+        {{- $deployments := set $deployments $deploymentName $deployment }}
+      {{- end }}
+    {{- end }}
+    {{- $environment := dict
+      "path" $envPath
+      "deployments" $deployments }}
+    {{- $environments := set $environments $entry.Name $environment }}
+  {{- end }}
+{{- end }}
+
+helmfiles: # generated from $environments collected by the code above
+  {{- $environment := $environments | getOrNil .Environment.Name | default dict }}
+  {{- $deployments := $environment | getOrNil "deployments" | default dict }}
+  {{- range $key, $deployment := $deployments }}
+  - path: {{ $deployment | get "path" }}
+    values:
+    - # Pass down current context values
+      {{- $.Values | toYaml | trim | nindent 6 }}
+    - deploymentBaseName: {{ $key }}
+    - deploymentName: {{ list
+          $.Values.deploymentNamePrefix
+          $key
+          $.Values.deploymentNameSuffix
+        | join "" }}
+    - deploymentNamespace: {{ $.Values.deploymentNamespace | default $.Environment.Name }}
+  {{- end }}

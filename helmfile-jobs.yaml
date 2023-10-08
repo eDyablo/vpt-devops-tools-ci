@@ -27,6 +27,7 @@ variables:
     name: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
     paths:
     - $HELMFILE_VALUES_FILE_SRC
+    - deploy.env
     - helmfile.yaml
     - infrastructure/**/*
     reports:
@@ -49,6 +50,10 @@ variables:
     helmfile test
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+  - | # write envs
+    (
+      echo HELMFILE_ENVIRONMENT=$HELMFILE_ENVIRONMENT
+    ) >> deploy.env
 
 .destroy helmfile job:
   extends: .helmfile job
@@ -59,7 +64,18 @@ variables:
   resource_group: !reference [.deploy helmfile job, resource_group]
   variables:
     GIT_STRATEGY: none
+  before_script:
+  - | # read deploy envs
+    set -o allexport
+    source deploy.env
+    set +o allexport
+  - !reference [.helmfile job, before_script]
   script:
+  - > # list releases defined in state file
+    helmfile list
+    --skip-charts
+    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+    ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
   - > # destroy and then purge releases
     helmfile destroy
     --skip-charts
