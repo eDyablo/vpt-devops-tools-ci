@@ -21,7 +21,6 @@ variables:
   stage: deploy
   environment:
     action: start
-    url: $ENVIRONMENT_URL
   resource_group: $CI_ENVIRONMENT_NAME
   artifacts:
     name: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
