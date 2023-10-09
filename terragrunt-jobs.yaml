@@ -1,0 +1,37 @@
+variables:
+  CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
+
+.terragrunt run-all job:
+  stage: deploy
+  image: ${CONTAINER_IMAGE_REGISTRY}/devops-tools-terragrunt-job-runner
+  script:
+  - > # Run terragrunt command for specified environment
+    terragrunt run-all ${TERRAFORM_COMMAND}
+    --terragrunt-non-interactive
+    --terragrunt-working-dir=infrastructure/${TERRAGRUNT_ENV_NAME}
+
+.terragrunt apply job:
+  extends: .terragrunt run-all job
+  stage: deploy
+  resource_group: $CI_ENVIRONMENT_NAME
+  environment:
+    action: start
+  artifacts:
+    name: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
+    paths:
+    - infrastructure/**/*.hcl
+    - infrastructure/**/*.tf
+    - modules/**/*.tf
+  variables:
+    TERRAFORM_COMMAND: apply
+
+.terragrunt destroy job:
+  extends: .terragrunt run-all job
+  when: manual
+  stage: .post
+  resource_group: !reference [.terragrunt apply job, resource_group]
+  environment:
+    action: stop
+  variables:
+    GIT_STRATEGY: none
+    TERRAFORM_COMMAND: destroy
