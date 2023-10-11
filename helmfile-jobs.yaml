@@ -41,10 +41,26 @@ variables:
     helmfile lint
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
-  - > # apply all resources from state file only when there are changes
-    helmfile apply
-    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
-    ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+  - | # apply all resources from state file only when there are changes
+    deployments=$(
+      helmfile list \
+        ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
+        ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE} \
+        --output=json --skip-charts --skip-deps \
+      | jq -r '.[].labels |  select(. | startswith("deployment:")) | sub("^deployment:"; "")' \
+      | sort | uniq
+    )
+    eval $(
+      echo echo -n
+      for deployment in $deployments; do
+        echo \& \( \
+          helmfile apply \
+          --selector=deployment=$deployment \
+          ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
+          ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE} \
+          \)
+      done
+    )
   - > # test charts from state file
     helmfile test
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
