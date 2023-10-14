@@ -1,3 +1,9 @@
+{{- $infrastructurePath :=
+  list
+    (.Values | getOrNil "rootPath")
+    "infrastructure"
+  | join "/" }}
+
 {{/*
 Walks through file system entries under infrastructure directory and builds
 environments from it. Every subdirectory name defines an environment and
@@ -6,9 +12,9 @@ merged with global values. The environment values have precedence over global
 values.
 */}}
 {{- $environments := dict }}
-{{- range $_, $entry := readDirEntries "infrastructure" }}
+{{- range $_, $entry := readDirEntries $infrastructurePath }}
   {{- if $entry.IsDir }}
-    {{- $envPath := list "infrastructure" $entry.Name | join "/" }}
+    {{- $envPath := list $infrastructurePath $entry.Name | join "/" }}
     {{- $environment := dict "path" $envPath }}
     {{- $environments := set $environments $entry.Name $environment }}
   {{- end }}
@@ -29,15 +35,21 @@ environments: # generated from $environments collected by the code above
   {{- end }}
 
 ---
+{{- $infrastructurePath :=
+  list
+    (.Values | getOrNil "rootPath")
+    "infrastructure"
+  | join "/" }}
+
 {{/*
 Walks through file system entries under infrastructure directory and builds
 a set of helmfiles from it. Every .yaml file except values.yaml under each
 subdirectory is treated as sub-helmfile.
 */}}
 {{- $environments := dict }}
-{{- range $_, $entry := readDirEntries "infrastructure" }}
+{{- range $_, $entry := readDirEntries $infrastructurePath }}
   {{- if $entry.IsDir }}
-    {{- $envPath := list "infrastructure" $entry.Name | join "/" }}
+    {{- $envPath := list $infrastructurePath $entry.Name | join "/" }}
     {{- $deployments := dict }}
     {{- range $_, $entry := readDirEntries $envPath }}
       {{- if $entry.IsDir }}
