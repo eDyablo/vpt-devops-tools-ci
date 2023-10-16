@@ -67,7 +67,9 @@ variables:
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
   - | # write envs
     (
-      echo HELMFILE_ENVIRONMENT=$HELMFILE_ENVIRONMENT
+      echo "DEPLOYMENT_NAME_PREFIX=$DEPLOYMENT_NAME_PREFIX"
+      echo "DEPLOYMENT_NAME_SUFFIX=$DEPLOYMENT_NAME_SUFFIX"
+      echo "HELMFILE_ENVIRONMENT=$HELMFILE_ENVIRONMENT"
     ) >> deploy.env
 
 .destroy helmfile job:

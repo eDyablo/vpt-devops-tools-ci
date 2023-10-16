@@ -1,0 +1,10 @@
+test helmfile jobs:
+  rules:
+  - changes:
+    - .gitlab-ci.yml
+    - helmfile-jobs.yaml
+  trigger:
+    strategy: depend
+    project: devops/samples/moon
+  variables:
+    CI_LIBRARY_REF_NAME: $CI_COMMIT_REF_NAME
