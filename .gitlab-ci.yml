@@ -1,8 +1,9 @@
-test helmfile jobs:
+test helmfile:
   rules:
   - changes:
     - .gitlab-ci.yml
     - helmfile-jobs.yaml
+    - helmfile.yaml
   trigger:
     strategy: depend
     project: devops/samples/moon
