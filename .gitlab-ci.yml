@@ -1,4 +1,16 @@
-test helmfile:
+variables:
+  CI_LIBRARY_REF_NAME: $CI_COMMIT_REF_NAME
+
+test container image jobs:
+  rules:
+  - changes:
+    - .gitlab-ci.yml
+    - container-image-jobs.yaml
+  trigger:
+    strategy: depend
+    project: devops/samples/utilaj
+
+test helmfile jobs:
   rules:
   - changes:
     - .gitlab-ci.yml
@@ -7,5 +19,3 @@ test helmfile:
   trigger:
     strategy: depend
     project: devops/samples/moon
-  variables:
-    CI_LIBRARY_REF_NAME: $CI_COMMIT_REF_NAME
