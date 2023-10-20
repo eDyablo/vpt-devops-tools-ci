@@ -8,6 +8,7 @@ variables:
 
 .kaniko build container image job:
   stage: build
+  resource_group: ${CI_COMMIT_REF_SLUG}
   image: ${KANIKO_IMAGE}
   variables:
     CONTAINER_IMAGE_BASE_NAME: ${CI_PROJECT_PATH_SLUG}
