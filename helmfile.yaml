@@ -65,6 +65,34 @@ subdirectory is treated as sub-helmfile.
   {{- end }}
 {{- end }}
 
+{{-
+$helperTemplates := dict
+"kubectl" (dict
+  "getJson" (list
+    `{{- $args := . }}`
+    `{{- $namespace := "default" }}`
+    `{{- $kind := "" }}`
+    `{{- $name := "" }}`
+    `{{- if eq 3 (len $args) }}`
+      `{{- $namespace = index $args 0 }}`
+      `{{- $args = slice $args 1 }}`
+    `{{- end }}`
+    `{{- if eq 2 (len $args) }}`
+      `{{- $kind = index $args 0 }}`
+      `{{- $name = index $args 1 }}`
+    `{{- end }}`
+    `{{- $cmd := list
+      "kubectl"
+      (list "--namespace" $namespace | join "=")
+      "get" $kind $name
+      "--output=json"
+      "--ignore-not-found"
+      | join " " }}`
+    `{{- exec "sh" (list "-c" $cmd) }}`
+    | join "\n" )
+)
+}}
+
 helmfiles: # generated from $environments collected by the code above
   {{- $environment := $environments | getOrNil .Environment.Name | default dict }}
   {{- $deployments := $environment | getOrNil "deployments" | default dict }}
@@ -87,4 +115,6 @@ helmfiles: # generated from $environments collected by the code above
         | join "" }}
     - deploymentNamespace: {{
         $.Values | getOrNil "deploymentNamespace" | default $.Environment.Name }}
+    - helper:
+        {{- $helperTemplates | toYaml | trim | nindent 8 }}
   {{- end }}
