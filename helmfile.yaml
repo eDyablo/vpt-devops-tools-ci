@@ -91,6 +91,16 @@ $helperTemplates := dict
     `{{- exec "sh" (list "-c" $cmd) }}`
     | join "\n" )
 )
+"security" (dict
+  "genPassword" (list
+    `{{- $length := . }}`
+    `{{- $alpha := "abcdefghijklmnopqrstuvwxyz" }}`
+    `{{- $num := "0123456789" }}`
+    `{{- $special := "!?@#$%^&*_+-=.,:;|~(){}[]<>" }}`
+    `{{- $passwordCharSet := list $alpha ($alpha | upper ) $num $special | join "" }}`
+    `{{- $passwordCharSet | repeat $length | shuffle | substr 0 $length }}`
+  | join "\n" )
+)
 }}
 
 helmfiles: # generated from $environments collected by the code above
