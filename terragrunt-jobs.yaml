@@ -1,5 +1,6 @@
 variables:
   CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
+  TERRAGRUNT_PROJECT_DIR: .
 
 .terragrunt run-all job:
   stage: deploy
@@ -8,7 +9,7 @@ variables:
   - > # Run terragrunt command for specified environment
     terragrunt run-all ${TERRAFORM_COMMAND}
     --terragrunt-non-interactive
-    --terragrunt-working-dir=infrastructure/${TERRAGRUNT_ENV_NAME}
+    --terragrunt-working-dir=${TERRAGRUNT_PROJECT_DIR}/infrastructure/${TERRAGRUNT_ENV_NAME}
 
 .terragrunt apply job:
   extends: .terragrunt run-all job
@@ -19,9 +20,9 @@ variables:
   artifacts:
     name: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
     paths:
-    - infrastructure/**/*.hcl
-    - infrastructure/**/*.tf
-    - modules/**/*.tf
+    - ${TERRAGRUNT_PROJECT_DIR}/infrastructure/**/*.hcl
+    - ${TERRAGRUNT_PROJECT_DIR}/infrastructure/**/*.tf
+    - ${TERRAGRUNT_PROJECT_DIR}/modules/**/*.tf
   variables:
     TERRAFORM_COMMAND: apply
 

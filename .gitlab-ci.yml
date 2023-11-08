@@ -19,3 +19,12 @@ test helmfile jobs:
   trigger:
     strategy: depend
     project: devops/samples/moon
+
+test terragrunt jobs:
+  rules:
+  - changes:
+    - .gitlab-ci.yaml
+    - terragrunt-jobs.yaml
+  trigger:
+    strategy: depend
+    project: devops/samples/ovaz
