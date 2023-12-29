@@ -50,4 +50,5 @@ variables:
     ${CONTAINER_IMAGE_NAME:+--destination=${CONTAINER_IMAGE_NAME}}
     ${DOCKERFILE_CONTEXT:+--context=${DOCKERFILE_CONTEXT}}
     ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME}}
-    $(for label in ${CONTAINER_IMAGE_LABELS};do echo --label=${label}; done)
+    $(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read build_arg; do [ "$build_arg" ] && echo "--build-arg=${build_arg}"; done)
+    $(for label in ${CONTAINER_IMAGE_LABELS}; do echo --label=${label}; done)
