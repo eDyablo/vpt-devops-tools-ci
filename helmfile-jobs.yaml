@@ -50,17 +50,23 @@ variables:
       | jq -r '.[].labels |  select(. | startswith("deployment:")) | sub("^deployment:"; "")' \
       | sort | uniq
     )
-    eval $(
-      echo echo -n
-      for deployment in $deployments; do
-        echo \& \( \
-          helmfile apply \
-          --selector=deployment=$deployment \
-          ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
-          ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE} \
-          \)
-      done
-    )
+    deploy() {
+      helmfile apply \
+        --selector=deployment=$1 \
+        ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
+        ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+    }
+    pids=
+    for deployment in $deployments; do
+      (deploy $deployment) & pids="$pids $!"
+    done
+    pcode=0
+    for pid in $pids; do
+      if ! wait $pid; then
+        pcode=$((pcode + 1))
+      fi
+    done
+    [ $pcode -eq 0 ] || exit $pcode
   - > # test charts from state file
     helmfile test
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
