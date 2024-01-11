@@ -32,22 +32,26 @@ variables:
     reports:
       dotenv: deploy.env
   script:
-  - > # list releases defined in state file
-    helmfile list
-    --skip-charts
-    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+  - | # list releases defined in state file
+    helmfile list \
+    --skip-charts \
+    ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
+    ${DEPLOYMENT_SELECTORS:=$(for deployment_name in $SELECT_DEPLOYMENT; do \
+      ${deployment_name:+echo --selector=deployment=${deployment_name}}; done)} \
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
   - > # lint charts from state file
     helmfile lint
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+    $DEPLOYMENT_SELECTORS
   - | # apply all resources from state file only when there are changes
     deployments=$(
       helmfile list \
         ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
         ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE} \
+        $DEPLOYMENT_SELECTORS \
         --output=json --skip-charts --skip-deps \
-      | jq -r '.[].labels |  select(. | startswith("deployment:")) | sub("^deployment:"; "")' \
+      | jq -r '.[].labels | select(. | contains("deployment:")) | match("deployment:([^,]+)").captures[0].string' \
       | sort | uniq
     )
     deploy() {
@@ -71,11 +75,13 @@ variables:
     helmfile test
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+    $DEPLOYMENT_SELECTORS
   - | # write envs
     (
-      echo "DEPLOYMENT_NAME_PREFIX=$DEPLOYMENT_NAME_PREFIX"
-      echo "DEPLOYMENT_NAME_SUFFIX=$DEPLOYMENT_NAME_SUFFIX"
-      echo "HELMFILE_ENVIRONMENT=$HELMFILE_ENVIRONMENT"
+      echo "DEPLOYMENT_NAME_PREFIX=${DEPLOYMENT_NAME_PREFIX}"
+      echo "DEPLOYMENT_NAME_SUFFIX=${DEPLOYMENT_NAME_SUFFIX}"
+      echo "HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT}"
+      echo "HELMFILE_SELECTORS='${DEPLOYMENT_SELECTORS//$'\n'/ }'"
     ) >> deploy.env
 
 .destroy helmfile job:
@@ -101,8 +107,10 @@ variables:
     --skip-charts
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+    $HELMFILE_SELECTORS
   - > # destroy and then purge releases
     helmfile destroy
     --skip-charts
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+    $HELMFILE_SELECTORS
