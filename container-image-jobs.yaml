@@ -15,6 +15,9 @@ variables:
     DOCKERFILE_CONTEXT: ./
     DOCKERFILE_NAME: Dockerfile
     KANIKO_EXECUTOR: /kaniko/executor
+  artifacts:
+    reports:
+      dotenv: build-container-image.env
   script:
   - | # Declare functions
     function list_append() {
@@ -52,3 +55,9 @@ variables:
     ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME}}
     $(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read build_arg; do [ "$build_arg" ] && echo "--build-arg=${build_arg}"; done)
     $(for label in ${CONTAINER_IMAGE_LABELS}; do echo --label=${label}; done)
+  - | # Store variables into artifact to pass them to further jobs
+    (
+      echo CONTAINER_IMAGE_NAME=$CONTAINER_IMAGE_NAME
+      echo CONTAINER_IMAGE_REPOSITORY=$CONTAINER_IMAGE_REPOSITORY
+      echo CONTAINER_IMAGE_TAG=$CONTAINER_IMAGE_TAG
+    ) >> build-container-image.env
