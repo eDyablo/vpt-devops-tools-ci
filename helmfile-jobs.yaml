@@ -79,6 +79,7 @@ variables:
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $DEPLOYMENT_SELECTORS
+  after_script:
   - | # write envs
     (
       echo "DEPLOYMENT_NAME_PREFIX=${DEPLOYMENT_NAME_PREFIX}"
