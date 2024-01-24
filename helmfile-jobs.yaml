@@ -31,6 +31,7 @@ variables:
     - infrastructure/**/*
     reports:
       dotenv: deploy.env
+    when: always
   script:
   - | # list releases defined in state file
     helmfile list \
