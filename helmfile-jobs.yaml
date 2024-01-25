@@ -107,6 +107,7 @@ variables:
           --all-containers=true \
           --prefix=true \
           --selector="app.kubernetes.io/instance=$release_name" \
+          --tail=-1 \
           --timestamps=true
       done
     fi
