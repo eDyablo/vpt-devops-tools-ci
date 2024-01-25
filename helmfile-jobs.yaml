@@ -88,6 +88,28 @@ variables:
       echo "HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT}"
       echo "HELMFILE_SELECTORS='${DEPLOYMENT_SELECTORS//$'\n'/ }'"
     ) >> deploy.env
+  - | # when job is failed printout the releases pods containers logs
+    if [ "$CI_JOB_STATUS" == 'failed' ]; then
+      releases=$(helmfile list \
+        --output=json \
+        --skip-charts --skip-deps \
+        ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
+        ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE} \
+        $DEPLOYMENT_SELECTORS \
+        | jq -r '.[] | select(.installed and .enabled) | "\(.namespace)/\(.name)"'
+      )
+      for release in $releases; do
+        release_name=${release#*\/}
+        release_namespace=${release%\/*}
+        kubectl \
+          --namespace=$release_namespace \
+          logs \
+          --all-containers=true \
+          --prefix=true \
+          --selector="app.kubernetes.io/instance=$release_name" \
+          --timestamps=true
+      done
+    fi
 
 .destroy helmfile job:
   extends: .helmfile job
