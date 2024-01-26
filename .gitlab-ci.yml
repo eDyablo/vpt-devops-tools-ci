@@ -10,6 +10,15 @@ test container image jobs:
     strategy: depend
     project: devops/samples/utilaj
 
+test helm jobs:
+  rules:
+  - changes:
+    - .gitlab-ci.yml
+    - helm-jobs.yaml
+  trigger:
+    project: devops/samples/tysa
+    strategy: depend
+
 test helmfile jobs:
   rules:
   - changes:
