@@ -1,12 +1,22 @@
 variables:
   CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
   HELM_CHART_PATH: .
+  HELM_RELEASE_NAME: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
   HELM_REPO_PASSWORD: $ARTIFACTORY_PASSWORD
   HELM_REPO_URL: https://artifactory.gtl.net/artifactory/helm-local
   HELM_REPO_USERNAME: $ARTIFACTORY_USERNAME
 
+.job scripts:
+  sanitize variables:
+  - HELM_NAMESPACE=${HELM_NAMESPACE:-${CI_ENVIRONMENT_SLUG}}
+  - >
+    HELM_RELEASE_NAME=${HELM_RELEASE_NAME:0:53}
+    && HELM_RELEASE_NAME=${HELM_RELEASE_NAME%-}
+
 .helm job:
   image: ${CONTAINER_IMAGE_REGISTRY}/devops-tools-helm-job-runner
+  artifacts:
+    name: ${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME_SLUG}-${CI_COMMIT_REF_SLUG}
 
 .lint chart job:
   extends: .helm job
@@ -20,7 +30,6 @@ variables:
   extends: .helm job
   stage: build
   artifacts:
-    name: ${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}
     paths:
     - "*.tgz"
     reports:
@@ -47,6 +56,60 @@ variables:
   extends: .helm job
   stage: deploy
   resource_group: $CI_JOB_NAME $CI_COMMIT_REF_NAME
+  artifacts:
+    reports:
+      dotenv: ${CI_JOB_NAME_SLUG}.env
   script:
   - > # Push chart package to Artifactory
     helm push-artifactory $HELM_CHART_PACKAGE $HELM_REPO_URL
+  - | # Store variables into artifact to pass them to further jobs
+    (
+      echo HELM_CHART_NAME=$HELM_CHART_NAME
+      echo HELM_CHART_PACKAGE_URL=${HELM_REPO_URL}/${HELM_CHART_NAME}/${HELM_CHART_PACKAGE}
+      echo HELM_CHART_VERSION=$HELM_CHART_VERSION
+    ) >> ${CI_JOB_NAME_SLUG}.env
+
+.helm chart release job:
+  extends: .helm job
+  before_script:
+  - !reference [.job scripts, sanitize variables]
+
+.upgrade helm chart release job:
+  extends: .helm chart release job
+  stage: deploy
+  environment:
+    action: start
+  resource_group: $CI_JOB_NAME $CI_ENVIRONMENT_NAME
+  script:
+  - > # Install or upgrade the release
+    helm upgrade
+    $HELM_RELEASE_NAME
+    $HELM_CHART_PATH
+    --create-namespace
+    --install
+    --wait
+    ${HELM_CHART_REPO:+--repo=$HELM_CHART_REPO}
+    ${HELM_CHART_VERSION:+--version=$HELM_CHART_VERSION}
+    ${HELM_NAMESPACE:+--namespace=$HELM_NAMESPACE}
+    ${HELM_TIMEOUT:+--timeout=$HELM_TIMEOUT}
+  - > # Run tests for the release
+    helm test
+    $HELM_RELEASE_NAME
+    ${HELM_NAMESPACE:+--namespace=$HELM_NAMESPACE}
+
+.uninstall helm chart release job:
+  extends: .helm chart release job
+  when: manual
+  stage: .post
+  environment:
+    action: stop
+  resource_group: !reference [.upgrade helm chart release job, resource_group]
+  variables:
+    GIT_STRATEGY: none
+  script:
+  - > # Remove all resources associated with the specified release
+    helm uninstall
+    $HELM_RELEASE_NAME
+    ${HELM_NAMESPACE:+--namespace=$HELM_NAMESPACE}
+    ${HELM_TIMEOUT:+--timeout=$HELM_TIMEOUT}
+    --wait
