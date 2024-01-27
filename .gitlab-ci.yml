@@ -32,7 +32,7 @@ test helmfile jobs:
 test terragrunt jobs:
   rules:
   - changes:
-    - .gitlab-ci.yaml
+    - .gitlab-ci.yml
     - terragrunt-jobs.yaml
   trigger:
     strategy: depend
