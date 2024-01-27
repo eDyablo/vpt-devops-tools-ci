@@ -8,7 +8,7 @@ variables:
 
 .job scripts:
   sanitize variables:
-  - HELM_NAMESPACE=${HELM_NAMESPACE:-${CI_ENVIRONMENT_SLUG}}
+  - HELM_NAMESPACE=${HELM_NAMESPACE:-$CI_ENVIRONMENT_SLUG}
   - >
     HELM_RELEASE_NAME=${HELM_RELEASE_NAME:0:53}
     && HELM_RELEASE_NAME=${HELM_RELEASE_NAME%-}
@@ -44,7 +44,7 @@ variables:
     --debug
     --dependency-update
     ${HELM_CHART_APP_VERSION:+--app-version=$HELM_CHART_APP_VERSION}
-    ${HELM_CHART_VERSION:+--version=$HELM_CHART_VERSION}
+    ${HELM_CHART_VERSION:+--version=${HELM_CHART_VERSION}}
   - | # Store variables into artifact to pass them to further jobs
     (
       echo HELM_CHART_NAME=$HELM_CHART_NAME
@@ -73,6 +73,8 @@ variables:
   extends: .helm job
   before_script:
   - !reference [.job scripts, sanitize variables]
+  after_script:
+  - !reference [.job scripts, sanitize variables]
 
 .upgrade helm chart release job:
   extends: .helm chart release job
@@ -88,14 +90,27 @@ variables:
     --create-namespace
     --install
     --wait
-    ${HELM_CHART_REPO:+--repo=$HELM_CHART_REPO}
-    ${HELM_CHART_VERSION:+--version=$HELM_CHART_VERSION}
-    ${HELM_NAMESPACE:+--namespace=$HELM_NAMESPACE}
-    ${HELM_TIMEOUT:+--timeout=$HELM_TIMEOUT}
+    ${HELM_CHART_REPO:+--repo=${HELM_CHART_REPO}}
+    ${HELM_CHART_VERSION:+--version=${HELM_CHART_VERSION}}
+    ${HELM_NAMESPACE:+--namespace=${HELM_NAMESPACE}}
+    ${HELM_TIMEOUT:+--timeout=${HELM_TIMEOUT}}
   - > # Run tests for the release
     helm test
     $HELM_RELEASE_NAME
-    ${HELM_NAMESPACE:+--namespace=$HELM_NAMESPACE}
+    ${HELM_NAMESPACE:+--namespace=${HELM_NAMESPACE}}
+  after_script:
+  - !reference [.helm chart release job, after_script]
+  - | # When job is failed printout the release pods containers logs
+    if [ "$CI_JOB_STATUS" == 'failed' ]; then
+      kubectl \
+        --namespace=$HELM_NAMESPACE \
+        logs \
+        --all-containers=true \
+        --prefix=true \
+        --selector="app.kubernetes.io/instance=${HELM_RELEASE_NAME}" \
+        --tail=-1 \
+        --timestamps=true
+    fi
 
 .uninstall helm chart release job:
   extends: .helm chart release job
@@ -110,6 +125,6 @@ variables:
   - > # Remove all resources associated with the specified release
     helm uninstall
     $HELM_RELEASE_NAME
-    ${HELM_NAMESPACE:+--namespace=$HELM_NAMESPACE}
-    ${HELM_TIMEOUT:+--timeout=$HELM_TIMEOUT}
+    ${HELM_NAMESPACE:+--namespace=${HELM_NAMESPACE}}
+    ${HELM_TIMEOUT:+--timeout=${HELM_TIMEOUT}}
     --wait
