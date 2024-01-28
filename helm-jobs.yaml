@@ -38,7 +38,7 @@ variables:
   - | # Define chart definition related variables
     HELM_CHART_NAME=$(helm show chart $HELM_CHART_PATH | grep '^name:' | cut -d':' -f2 | tr -d '[:space:]')
     HELM_CHART_SOURCE_VERSION=$(helm show chart $HELM_CHART_PATH | grep '^version:' | cut -d':' -f2 | tr -d '[:space:]')
-    HELM_CHART_VERSION=${HELM_CHART_VERSION//'${HELM_CHART_SOURCE_VERSION}'/$HELM_CHART_SOURCE_VERSION}
+    HELM_CHART_VERSION=${HELM_CHART_VERSION//'@{HELM_CHART_SOURCE_VERSION}'/$HELM_CHART_SOURCE_VERSION}
     HELM_CHART_VERSION=${HELM_CHART_VERSION:-$HELM_CHART_SOURCE_VERSION}
     HELM_CHART_PACKAGE=${HELM_CHART_NAME}-${HELM_CHART_VERSION}.tgz
   - > # Package a chart into a versioned chart archive file
