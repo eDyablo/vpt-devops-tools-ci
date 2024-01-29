@@ -7,6 +7,10 @@ variables:
   HELM_REPO_USERNAME: $ARTIFACTORY_USERNAME
 
 .job scripts:
+  sanitize chart variables:
+  - >
+    HELM_CHART_VERSION=${HELM_CHART_VERSION//'@{HELM_CHART_SOURCE_VERSION}'/$HELM_CHART_SOURCE_VERSION}
+    && HELM_CHART_VERSION=${HELM_CHART_VERSION:-$HELM_CHART_SOURCE_VERSION}
   sanitize variables:
   - HELM_NAMESPACE=${HELM_NAMESPACE:-$CI_ENVIRONMENT_SLUG}
   - >
@@ -38,9 +42,7 @@ variables:
   - | # Define chart definition related variables
     HELM_CHART_NAME=$(helm show chart $HELM_CHART_PATH | grep '^name:' | cut -d':' -f2 | tr -d '[:space:]')
     HELM_CHART_SOURCE_VERSION=$(helm show chart $HELM_CHART_PATH | grep '^version:' | cut -d':' -f2 | tr -d '[:space:]')
-    HELM_CHART_VERSION=${HELM_CHART_VERSION//'@{HELM_CHART_SOURCE_VERSION}'/$HELM_CHART_SOURCE_VERSION}
-    HELM_CHART_VERSION=${HELM_CHART_VERSION:-$HELM_CHART_SOURCE_VERSION}
-    HELM_CHART_PACKAGE=${HELM_CHART_NAME}-${HELM_CHART_VERSION}.tgz
+  - !reference [.job scripts, sanitize chart variables]
   - > # Package a chart into a versioned chart archive file
     helm package $HELM_CHART_PATH
     --debug
@@ -50,7 +52,8 @@ variables:
   - | # Store variables into artifact to pass them to further jobs
     (
       echo HELM_CHART_NAME=$HELM_CHART_NAME
-      echo HELM_CHART_PACKAGE=$HELM_CHART_PACKAGE
+      echo HELM_CHART_PACKAGE=${HELM_CHART_NAME}-${HELM_CHART_VERSION}.tgz
+      echo HELM_CHART_SOURCE_VERSION=$HELM_CHART_SOURCE_VERSION
       echo HELM_CHART_VERSION=$HELM_CHART_VERSION
     ) >> ${CI_JOB_NAME_SLUG}.env
 
@@ -64,11 +67,13 @@ variables:
   script:
   - > # Push chart package to Artifactory
     helm push-artifactory $HELM_CHART_PACKAGE $HELM_REPO_URL
+  - !reference [.job scripts, sanitize chart variables]
   - | # Store variables into artifact to pass them to further jobs
     (
       echo HELM_CHART_NAME=$HELM_CHART_NAME
       echo HELM_CHART_PACKAGE_URL=${HELM_REPO_URL}/${HELM_CHART_NAME}/${HELM_CHART_PACKAGE}
-      echo HELM_CHART_VERSION=$HELM_CHART_VERSION
+      echo HELM_CHART_PACKAGE_VERSION=$HELM_CHART_VERSION
+      echo HELM_CHART_SOURCE_VERSION=$HELM_CHART_SOURCE_VERSION
     ) >> ${CI_JOB_NAME_SLUG}.env
 
 .helm chart release job:
