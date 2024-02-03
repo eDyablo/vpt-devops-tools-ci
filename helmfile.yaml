@@ -26,8 +26,12 @@ environments: # generated from $environments collected by the code above
     values:
     - infrastructure/values.yaml
     - {{ list (get "path" $data) "values.yaml" | join "/" }}
-    - deploymentNamePrefix: {{ env "DEPLOYMENT_NAME_PREFIX" }}
-    - deploymentNameSuffix: {{ env "DEPLOYMENT_NAME_SUFFIX" }}
+    {{- with env "DEPLOYMENT_NAME_PREFIX" }}
+    - deploymentNamePrefix: {{ . }}
+    {{- end }}
+    {{- with env "DEPLOYMENT_NAME_SUFFIX" }}
+    - deploymentNameSuffix: {{ . }}
+    {{- end }}
   {{- end }}
 
 ---
@@ -115,9 +119,9 @@ helmfiles: # generated from $environments collected by the code above
     - deploymentBaseName: {{ $key }}
     - deploymentName: {{
         list
-          $.Values.deploymentNamePrefix
+          ($.Values | getOrNil "deploymentNamePrefix")
           $key
-          $.Values.deploymentNameSuffix
+          ($.Values | getOrNil "deploymentNameSuffix")
         | compact | join "" }}
     - deploymentNamespace: {{
         $.Values | getOrNil "deploymentNamespace" | default $.Environment.Name }}
