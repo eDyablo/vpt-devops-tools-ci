@@ -24,6 +24,8 @@ environments: # generated from $environments collected by the code above
   {{- range $key, $data := $environments }}
   {{ $key }}:
     values:
+    - deploymentNamePrefix:
+    - deploymentNameSuffix:
     - infrastructure/values.yaml
     - {{ list (get "path" $data) "values.yaml" | join "/" }}
     {{- with env "DEPLOYMENT_NAME_PREFIX" }}
