@@ -24,6 +24,20 @@ environments: # generated from $environments collected by the code above
   {{- range $key, $data := $environments }}
   {{ $key }}:
     values:
+    - ci:
+        jobId: {{ env "CI_JOB_ID" }}
+        jobName: {{ env "CI_JOB_NAME" }}
+        jobUrl: {{ env "CI_JOB_URL" }}
+        pipelineId: {{ env "CI_PIPELINE_ID" }}
+        pipelineInternalId: {{ env "CI_PIPELINE_IID" }}
+        pipelineName: {{ env "CI_PIPELINE_NAME" }}
+        pipelineUrl: {{ env "CI_PIPELINE_URL" }}
+        projectId: {{ env "CI_PROJECT_ID" }}
+        projectName: {{ env "CI_PROJECT_NAME" }}
+        projectNamespace: {{ env "CI_PROJECT_NAMESPACE" }}
+        projectNamespaceId: {{ env "CI_PROJECT_NAMESPACE_ID" }}
+        projectPath: {{ env "CI_PROJECT_PATH" }}
+        projectUrl: {{ env "CI_PROJECT_URL" }}
     - deploymentNamePrefix:
     - deploymentNameSuffix:
     - infrastructure/values.yaml
