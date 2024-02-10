@@ -48,14 +48,21 @@ environments: # generated from $environments collected by the code above
     {{- with env "DEPLOYMENT_NAME_SUFFIX" }}
     - deploymentNameSuffix: {{ . }}
     {{- end }}
+    - rootHelmfileDirPath: {{ exec "pwd" list }}
   {{- end }}
 
 ---
-{{- $infrastructurePath :=
-  list
-    (.Values | getOrNil "rootPath")
-    "infrastructure"
-  | join "/" }}
+{{-
+$rootHelmfileDirPath := .Values.rootHelmfileDirPath
+-}}
+
+{{-
+$infrastructurePath := (list
+  (.Values | getOrNil "rootPath")
+  "infrastructure"
+  | join "/"
+)
+-}}
 
 {{/*
 Walks through file system entries under infrastructure directory and builds
@@ -131,7 +138,9 @@ helmfiles: # generated from $environments collected by the code above
     - # Pass down current context values
       {{- $.Values | toYaml | trim | nindent 6 }}
     - {{ $deploymentValuesPath }}
-    - rootHelmfilePath: {{ exec "pwd" list }}
+    - rootHelmfilePath: {{ $rootHelmfileDirPath }} # Depricated! Please avoid using it
+    - infrastructureDirPath: {{ list $rootHelmfileDirPath $infrastructurePath | join "/" }}
+    - deploymentDirPath: {{ list $rootHelmfileDirPath $deploymentPath | join "/" }}
     - deploymentBaseName: {{ $key }}
     - deploymentName: {{
         list
