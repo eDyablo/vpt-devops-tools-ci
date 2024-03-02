@@ -26,6 +26,9 @@ variables:
   extends: .helm job
   stage: .pre
   script:
+  - > # Update chart dependencies listed in Chart.yaml
+    helm dependency update $HELM_CHART_PATH
+    --debug
   - > # Run a series of tests to verify that the chart is well-formed
     helm lint $HELM_CHART_PATH
     --debug
@@ -50,6 +53,9 @@ variables:
     HELM_CHART_NAME=$(helm show chart $HELM_CHART_PATH | grep '^name:' | cut -d':' -f2 | tr -d '[:space:]')
     HELM_CHART_SOURCE_VERSION=$(helm show chart $HELM_CHART_PATH | grep '^version:' | cut -d':' -f2 | tr -d '[:space:]')
   - !reference [.job scripts, sanitize chart variables]
+  - > # Update chart dependencies listed in Chart.yaml
+    helm dependency update $HELM_CHART_PATH
+    --debug
   - > # Package a chart into a versioned chart archive file
     helm package $HELM_CHART_PATH
     --debug
@@ -102,6 +108,8 @@ variables:
     $HELM_RELEASE_NAME
     $HELM_CHART_PATH
     --create-namespace
+    --debug
+    --dependency-update
     --install
     --wait
     ${HELM_CHART_REPO:+--repo=${HELM_CHART_REPO}}
