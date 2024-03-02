@@ -33,6 +33,13 @@ variables:
 .package chart job:
   extends: .helm job
   stage: build
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    variables:
+      HELM_CHART_VERSION: "@{HELM_CHART_SOURCE_VERSION}"
+  - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    variables:
+      HELM_CHART_VERSION: "@{HELM_CHART_SOURCE_VERSION}-${CI_COMMIT_REF_SLUG}"
   artifacts:
     paths:
     - "*.tgz"
