@@ -10,6 +10,8 @@ variables:
     terragrunt run-all ${TERRAFORM_COMMAND}
     --terragrunt-non-interactive
     --terragrunt-working-dir=${TERRAGRUNT_PROJECT_DIR}/infrastructure/${TERRAGRUNT_ENV_NAME}
+  tags:
+  - terraform
 
 .terragrunt apply job:
   extends: .terragrunt run-all job
