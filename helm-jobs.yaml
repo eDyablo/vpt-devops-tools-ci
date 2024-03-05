@@ -5,9 +5,14 @@ variables:
   HELM_REPO_PASSWORD: $ARTIFACTORY_PASSWORD
   HELM_REPO_URL: https://artifactory.gtl.net/artifactory/helm-local
   HELM_REPO_USERNAME: $ARTIFACTORY_USERNAME
+  VERSION_TAG_PATTERN: ^v(0|[1-9]+)(.(0|[1-9]+)){2}($|-[0-9a-zA-Z-]+$)
 
 .job scripts:
   sanitize chart variables:
+  - |
+    if echo $HELM_CHART_VERSION | grep -Eq $VERSION_TAG_PATTERN; then
+      HELM_CHART_VERSION=${HELM_CHART_VERSION#v}
+    fi
   - >
     HELM_CHART_VERSION=${HELM_CHART_VERSION//'@{HELM_CHART_SOURCE_VERSION}'/$HELM_CHART_SOURCE_VERSION}
     && HELM_CHART_VERSION=${HELM_CHART_VERSION:-$HELM_CHART_SOURCE_VERSION}
@@ -37,6 +42,8 @@ variables:
   extends: .helm job
   stage: build
   rules:
+  - if: $CI_COMMIT_TAG =~ /${VERSION_TAG_PATTERN}/
+      HELM_CHART_VERSION: $CI_COMMIT_TAG
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     variables:
       HELM_CHART_VERSION: "@{HELM_CHART_SOURCE_VERSION}"
