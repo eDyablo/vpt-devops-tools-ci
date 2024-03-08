@@ -112,7 +112,8 @@ $helperTemplates := dict
       "--ignore-not-found"
       | join " " }}`
     `{{- exec "sh" (list "-c" $cmd) }}`
-    | join "\n" )
+    | join "\n"
+  )
 )
 "security" (dict
   "genPassword" (list
@@ -122,7 +123,24 @@ $helperTemplates := dict
     `{{- $special := "!?@#$%^&*_+-=.,:;|~(){}[]<>" }}`
     `{{- $passwordCharSet := list $alpha ($alpha | upper ) $num $special | join "" }}`
     `{{- $passwordCharSet | repeat $length | shuffle | substr 0 $length }}`
-  | join "\n" )
+    | join "\n"
+  )
+)
+"shortName" (list
+  `{{- $length := index . 0 }}`
+  `{{- $name := index . 1 }}`
+  `{{- if le (len $name) $length }}`
+    `{{- $name }}`
+  `{{- else }}`
+    `{{- $digest := $name | sha1sum }}`
+    `{{-
+      list
+        ($name | trunc (sub $length 6 | int) | trimSuffix "-")
+        ($digest | trunc -5)
+      | join "-"
+    -}}`
+  `{{- end }}`
+  | join "\n"
 )
 }}
 
