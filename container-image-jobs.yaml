@@ -3,7 +3,7 @@ variables:
   CONTAINER_IMAGE_REGISTRY_PASSWORD: ${ARTIFACTORY_PASSWORD}
   CONTAINER_IMAGE_REGISTRY_USER: ${ARTIFACTORY_USER}
   CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
-  KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.9.0-debug
+  KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.21.1-debug
   VERSION_TAG_PATTERN: ^v(0|[1-9]+)(.(0|[1-9]+)){2}($|-[0-9a-zA-Z-]+$)
 
 .kaniko build container image job:
