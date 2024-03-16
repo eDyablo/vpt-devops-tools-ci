@@ -53,7 +53,7 @@ environments: # generated from $environments collected by the code above
 
 ---
 {{-
-$rootHelmfileDirPath := .Values.rootHelmfileDirPath
+$rootHelmfileDirPath := .Values | getOrNil "rootHelmfileDirPath"
 -}}
 
 {{-
