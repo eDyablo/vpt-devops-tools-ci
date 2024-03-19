@@ -1,8 +1,10 @@
-{{- $infrastructurePath :=
+{{-
+$infrastructurePath :=
   list
     (.Values | getOrNil "rootPath")
     "infrastructure"
-  | join "/" }}
+  | join "/"
+}}
 
 {{/*
 Walks through file system entries under infrastructure directory and builds
@@ -54,7 +56,7 @@ environments: # generated from $environments collected by the code above
 ---
 {{-
 $rootHelmfileDirPath := .Values | getOrNil "rootHelmfileDirPath"
--}}
+}}
 
 {{-
 $infrastructurePath := (list
@@ -62,7 +64,7 @@ $infrastructurePath := (list
   "infrastructure"
   | join "/"
 )
--}}
+}}
 
 {{/*
 Walks through file system entries under infrastructure directory and builds
@@ -85,6 +87,22 @@ subdirectory is treated as sub-helmfile.
       "path" $envPath
       "deployments" $deployments }}
     {{- $environments := set $environments $entry.Name $environment }}
+  {{- end }}
+{{- end }}
+
+{{- $locals := dict }}
+
+{{- range $index, $element := .Values.ci }}
+  {{- if $element }}
+    {{-
+    $locals = $locals | merge (dict
+      "ci" (dict
+        "annotations" (dict
+          (list "ci" ($index | kebabcase) | join "/") ($element | toString)
+        )
+      )
+    )
+    }}
   {{- end }}
 {{- end }}
 
@@ -156,6 +174,11 @@ helmfiles: # generated from $environments collected by the code above
     - # Pass down current context values
       {{- $.Values | toYaml | trim | nindent 6 }}
     - {{ $deploymentValuesPath }}
+    {{- with $locals | getOrNil "ci.annotations" }}
+    - ci:
+        annotations:
+          {{- . | toYaml | trim | nindent 10 }}
+    {{- end }}
     - rootHelmfilePath: {{ $rootHelmfileDirPath }} # Depricated! Please avoid using it
     - infrastructureDirPath: {{ list $rootHelmfileDirPath $infrastructurePath | join "/" }}
     - deploymentDirPath: {{ list $rootHelmfileDirPath $deploymentPath | join "/" }}
