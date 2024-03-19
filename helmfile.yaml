@@ -66,6 +66,10 @@ $infrastructurePath := (list
 )
 }}
 
+{{-
+$infrastructureDirPath := list $rootHelmfileDirPath $infrastructurePath | join "/"
+}}
+
 {{/*
 Walks through file system entries under infrastructure directory and builds
 a set of helmfiles from it. Every .yaml file except values.yaml under each
@@ -167,8 +171,49 @@ helmfiles: # generated from $environments collected by the code above
   {{- $deployments := $environment | getOrNil "deployments" | default dict }}
   {{- range $key, $deployment := $deployments }}
   {{- $deploymentHelmfilePath := $deployment | get "path" }}
+  {{- $deploymentName := list
+        ($.Values | getOrNil "deploymentNamePrefix")
+        $key
+        ($.Values | getOrNil "deploymentNameSuffix")
+        | compact | join ""
+  }}
   {{- $deploymentPath := $deploymentHelmfilePath | dir }}
+  {{- $deploymentDirPath := list $rootHelmfileDirPath $deploymentPath | join "/" }}
   {{- $deploymentValuesPath := list $deploymentPath "values.yaml" | join "/" }}
+  {{- $releaseNameMaxLenght := 53 }}
+  {{-
+  $componentLookupPaths := (list
+    $infrastructureDirPath
+    ($deploymentDirPath | splitList "/" | initial | join "/")
+    $deploymentDirPath
+  )
+  }}
+  {{- $deploymentComponents := dict }}
+  {{- range $componentLookupPaths }}
+    {{- range readDir . }}
+      {{- $fileName := . | splitList "/" | last }}
+      {{- if and ($fileName | hasSuffix ".yaml") (not ($fileName | eq "helmfile.yaml")) (not ($fileName | eq "values.yaml")) }}
+        {{- $componentName := $fileName | splitList "." | initial | join "." }}
+        {{- $deploymentComponents = $deploymentComponents | merge (dict
+              $componentName (dict
+                "files" (append ($deploymentComponents | getOrNil (list $componentName "files" | join ".") | default list) .)
+                "release" ((pick (readFile . | fromYaml) "release") | getOrNil "release")
+              )
+            )
+        }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- range $index, $_ := $deploymentComponents }}
+    {{- $deploymentComponents = $deploymentComponents | merge (dict
+      $index (dict
+        "release" (dict
+          "name" (tpl $helperTemplates.shortName (list $releaseNameMaxLenght (list $deploymentName $index | join "-")))
+        )
+      )
+    )
+    }}
+  {{- end }}
   - path: {{ $deploymentHelmfilePath }}
     values:
     - # Pass down current context values
@@ -180,17 +225,17 @@ helmfiles: # generated from $environments collected by the code above
           {{- . | toYaml | trim | nindent 10 }}
     {{- end }}
     - rootHelmfilePath: {{ $rootHelmfileDirPath }} # Depricated! Please avoid using it
-    - infrastructureDirPath: {{ list $rootHelmfileDirPath $infrastructurePath | join "/" }}
-    - deploymentDirPath: {{ list $rootHelmfileDirPath $deploymentPath | join "/" }}
+    - infrastructureDirPath: {{ $infrastructureDirPath }}
+    {{- with $deploymentComponents }}
+    - deploymentComponents:
+        {{- . | toYaml | trim | nindent 8 }}
+    {{- end }}
+    - deploymentDirPath: {{ $deploymentDirPath }}
     - deploymentBaseName: {{ $key }}
-    - deploymentName: {{
-        list
-          ($.Values | getOrNil "deploymentNamePrefix")
-          $key
-          ($.Values | getOrNil "deploymentNameSuffix")
-        | compact | join "" }}
+    - deploymentName: {{ $deploymentName }}
     - deploymentNamespace: {{
         $.Values | getOrNil "deploymentNamespace" | default $.Environment.Name }}
     - helper:
         {{- $helperTemplates | toYaml | trim | nindent 8 }}
+    - releaseNameMaxLenght: {{ $releaseNameMaxLenght }}
   {{- end }}
