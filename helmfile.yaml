@@ -235,6 +235,8 @@ helmfiles: # generated from $environments collected by the code above
     - deploymentName: {{ $deploymentName }}
     - deploymentNamespace: {{
         $.Values | getOrNil "deploymentNamespace" | default $.Environment.Name }}
+    - deploymentReleaseName: {{
+        tpl $helperTemplates.shortName (list $releaseNameMaxLength $deploymentName) }}
     - helper:
         {{- $helperTemplates | toYaml | trim | nindent 8 }}
     - releaseNameMaxLength: {{ $releaseNameMaxLength }}
