@@ -180,7 +180,7 @@ helmfiles: # generated from $environments collected by the code above
   {{- $deploymentPath := $deploymentHelmfilePath | dir }}
   {{- $deploymentDirPath := list $rootHelmfileDirPath $deploymentPath | join "/" }}
   {{- $deploymentValuesPath := list $deploymentPath "values.yaml" | join "/" }}
-  {{- $releaseNameMaxLenght := 53 }}
+  {{- $releaseNameMaxLength := 53 }}
   {{-
   $componentLookupPaths := (list
     $infrastructureDirPath
@@ -208,7 +208,7 @@ helmfiles: # generated from $environments collected by the code above
     {{- $deploymentComponents = $deploymentComponents | merge (dict
       $index (dict
         "release" (dict
-          "name" (tpl $helperTemplates.shortName (list $releaseNameMaxLenght (list $deploymentName $index | join "-")))
+          "name" (tpl $helperTemplates.shortName (list $releaseNameMaxLength (list $deploymentName $index | join "-")))
         )
       )
     )
@@ -237,5 +237,5 @@ helmfiles: # generated from $environments collected by the code above
         $.Values | getOrNil "deploymentNamespace" | default $.Environment.Name }}
     - helper:
         {{- $helperTemplates | toYaml | trim | nindent 8 }}
-    - releaseNameMaxLenght: {{ $releaseNameMaxLenght }}
+    - releaseNameMaxLength: {{ $releaseNameMaxLength }}
   {{- end }}
