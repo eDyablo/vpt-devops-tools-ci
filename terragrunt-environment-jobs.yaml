@@ -6,5 +6,7 @@
   - if: $SELECT_BRANCH && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH =~ $SELECT_BRANCH
   - if: $SELECT_BRANCH_EXCEPT && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH !~ $SELECT_BRANCH_EXCEPT
   trigger:
-    include: terragrunt-environment-pipeline.yaml
+    include:
+    - project: devops/tools/ci
+      file: terragrunt-environment-pipeline.yaml
     strategy: depend
