@@ -1,0 +1,10 @@
+.terragrunt environment job:
+  stage: deploy
+  rules:
+  - if: $EXCLUDE_BRANCH && $CI_COMMIT_BRANCH =~ $EXCLUDE_BRANCH
+    when: never
+  - if: $SELECT_BRANCH && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH =~ $SELECT_BRANCH
+  - if: $SELECT_BRANCH_EXCEPT && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH !~ $SELECT_BRANCH_EXCEPT
+  trigger:
+    include: terragrunt-environment-pipeline.yaml
+    strategy: depend
