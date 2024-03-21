@@ -1,0 +1,19 @@
+include: terragrunt-jobs.yaml
+
+deploy environment:
+  extends: .terragrunt apply job
+  environment:
+    auto_stop_in: $ENVIRONMENT_AUTOSTOP
+    name: $TERRAGRUNT_ENV_NAME
+    on_stop: stop environment
+  tags:
+  - $RUNNER_TAG
+
+stop environment:
+  extends: .terragrunt destroy job
+  needs:
+  - job: deploy environment
+  stage: .post
+  environment:
+    name: !reference [deploy environment, environment, name]
+  tags: !reference [deploy environment, tags]
