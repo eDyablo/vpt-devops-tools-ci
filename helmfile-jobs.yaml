@@ -1,10 +1,9 @@
 variables:
-  CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
   HELMFILE_VALUES_FILE_SRC: .gitlab-ci.values.yaml
   KUBE_CONTEXT: ' ' # use runner's default kubernetes settings
 
 .helmfile job:
-  image: ${CONTAINER_IMAGE_REGISTRY}/devops-tools-helmfile-job-runner
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-helmfile-job-runner
   before_script:
   - > # Set environment variables
     HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT:-$CI_ENVIRONMENT_SLUG}

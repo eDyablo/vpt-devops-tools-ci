@@ -1,8 +1,5 @@
-variables:
-  CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
-
 .pytest job:
   stage: test
-  image: ${CONTAINER_IMAGE_REGISTRY}/devops-tools-python-job-runner
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-python-job-runner
   script:
   - pytest

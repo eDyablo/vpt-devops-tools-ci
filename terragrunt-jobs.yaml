@@ -1,10 +1,9 @@
 variables:
-  CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
   TERRAGRUNT_PROJECT_DIR: .
 
 .terragrunt run-all job:
   stage: deploy
-  image: ${CONTAINER_IMAGE_REGISTRY}/devops-tools-terragrunt-job-runner
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-terragrunt-job-runner
   script:
   - > # Run terragrunt command for specified environment
     terragrunt run-all ${TERRAFORM_COMMAND}
