@@ -6,6 +6,12 @@ variables:
   QA_BRANCH_NAME_PATTERN: ^qa$
   VERSION_TAG_PATTERN: ^v(0|[1-9]+)(.(0|[1-9]+)){2}($|-[0-9a-zA-Z-]+$)
 
+.container image jobs:
+  workflow rules:
+  - if: $CI_COMMIT_BRANCH =~ $QA_BRANCH_NAME_PATTERN
+    variables:
+      CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-qa
+
 .kaniko build container image job:
   stage: build
   resource_group: ${CI_COMMIT_REF_SLUG}
