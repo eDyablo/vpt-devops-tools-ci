@@ -3,9 +3,9 @@ variables:
   CONTAINER_IMAGE_REGISTRY_USER: $ARTIFACTORY_USER
   CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr
   KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.21.1-debug
-  QA_BRANCH_NAME_PATTERN: ^qa$
-  VERSION_TAG_PATTERN: ^v(0|[1-9]+)(.(0|[1-9]+)){2}($|-[0-9a-zA-Z-]+$)
-  PRODUCTION_TAG_PATTERN: ^v(0|[1-9]+)(.(0|[1-9]+)){2}$
+  QA_BRANCH_NAME_PATTERN: /^qa$/
+  VERSION_TAG_PATTERN: /^v(0|[1-9]+)(.(0|[1-9]+)){2}($|-[0-9a-zA-Z-]+$)/
+  PRODUCTION_TAG_PATTERN: /^v(0|[1-9]+)(.(0|[1-9]+)){2}$/
 
 .container image jobs:
   workflow rules:
@@ -35,6 +35,9 @@ variables:
       local items=$(eval echo $"${list}")
       eval ${list}=\"${items:+${items} }${@}\"
     }
+  - | # Sanitize variables
+    VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN#/}
+    VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN%/*}
   - | # Set container image related variables
     CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
     if [ ! ${CONTAINER_IMAGE_TAG} ]; then
