@@ -9,7 +9,7 @@ variables:
 
 .container image jobs:
   workflow rules:
-  - if: $CI_COMMIT_BRANCH =~ $QA_BRANCH_NAME_PATTERN
+  - if: $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH =~ $QA_BRANCH_NAME_PATTERN
     variables:
       CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-qa
   - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $PRODUCTION_TAG_PATTERN
