@@ -36,7 +36,7 @@ variables:
       eval ${list}=\"${items:+${items} }${@}\"
     }
   - | # Sanitize variables
-    VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN#/}
+    VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN#/*}
     VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN%/*}
   - | # Set container image related variables
     CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
