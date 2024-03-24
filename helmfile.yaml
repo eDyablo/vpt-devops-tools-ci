@@ -96,7 +96,7 @@ subdirectory is treated as sub-helmfile.
 
 {{- $locals := dict }}
 
-{{- range $index, $element := .Values.ci }}
+{{- range $index, $element := .Values | dig "ci" nil }}
   {{- if $element }}
     {{-
     $locals = $locals | merge (dict
