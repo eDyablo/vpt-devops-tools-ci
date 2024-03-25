@@ -82,7 +82,8 @@ variables:
 .kaniko clone container image job:
   extends: .kaniko build container image job
   script:
-  - >- # Overwrite 
+  - >- # Overwrite Dockerfile content
     echo FROM $SOURCE_CONTAINER_IMAGE_NAME
     > ${DOCKERFILE_CONTEXT:=.}/${DOCKERFILE_NAME:=Dockerfile}
   - cat ${DOCKERFILE_CONTEXT}/${DOCKERFILE_NAME}
+  - !reference [.kaniko build container image job, script]
