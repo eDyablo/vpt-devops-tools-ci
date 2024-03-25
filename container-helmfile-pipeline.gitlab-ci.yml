@@ -11,3 +11,20 @@ variables:
     description: Reference ticket. Required for production deployment.
     value: ''
   PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
+
+workflow:
+  rules:
+  - if: >-
+      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      && $CI_COMMIT_BRANCH !~ $RELEASE_BRANCH_NAME_PATTERN
+    when: never
+  - if: >-
+      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      && $JIRA_TICKET == ''
+    when: never
+  - if: >-
+      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      && $JIRA_TICKET !~ $PRODUCTION_JIRA_TICKET_PATTERN
+    when: never
+  - !reference [.container image jobs, workflow rules]
+  - when: always
