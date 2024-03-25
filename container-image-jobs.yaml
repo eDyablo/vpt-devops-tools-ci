@@ -86,4 +86,4 @@ variables:
     echo FROM $(eval "echo \"${SOURCE_CONTAINER_IMAGE_NAME}\"")
     > ${DOCKERFILE_CONTEXT:=.}/${DOCKERFILE_NAME:=Dockerfile}
   - cat ${DOCKERFILE_CONTEXT}/${DOCKERFILE_NAME}
-  - !reference [.kaniko build container image job, script]
+  #- !reference [.kaniko build container image job, script]
