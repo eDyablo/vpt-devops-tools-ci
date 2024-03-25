@@ -40,4 +40,5 @@ promote release container image:
   - CONTAINER_IMAGE_TAG=${CI_COMMIT_BRANCH##*/}
   - !reference [.kaniko clone container image job, script]
   variables:
+    CONTAINER_IMAGE_BASE_NAME: $CONTAINER_IMAGE_BASE_NAME
     CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-production
