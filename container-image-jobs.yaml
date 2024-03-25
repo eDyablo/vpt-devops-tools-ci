@@ -26,7 +26,7 @@ variables:
   image: ${KANIKO_IMAGE}
   variables:
     CONTAINER_IMAGE_BASE_NAME: ${CI_PROJECT_PATH_SLUG}
-    DOCKERFILE_CONTEXT: ./
+    DOCKERFILE_CONTEXT: .
     DOCKERFILE_NAME: Dockerfile
     KANIKO_EXECUTOR: /kaniko/executor
   artifacts:
@@ -82,5 +82,7 @@ variables:
 .kaniko clone container image job:
   extends: .kaniko build container image job
   script:
-  - echo $SOURCE_CONTAINER_IMAGE_NAME
-  - echo $CONTAINER_IMAGE_NAME
+  - >- # Overwrite 
+    echo FROM $SOURCE_CONTAINER_IMAGE_NAME
+    > ${DOCKERFILE_CONTEXT:=.}/${DOCKERFILE_NAME:=Dockerfile}
+  - cat ${DOCKERFILE_CONTEXT}/${DOCKERFILE_NAME}
