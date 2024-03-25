@@ -1,0 +1,13 @@
+include: container-image-jobs.yaml
+
+variables:
+  DEPLOY_RELEASE:
+    description: Deploy selected release branch.
+    options:
+    - 'yes'
+    - 'no'
+    value: 'no'
+  JIRA_TICKET:
+    description: Reference ticket. Required for production deployment.
+    value: ''
+  PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
