@@ -12,8 +12,8 @@ variables:
     value: ''
   PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
 
-workflow:
-  rules:
+.container helmfile jobs:
+  workflow rules:
   - if: >-
       $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
       && $CI_COMMIT_BRANCH !~ $RELEASE_BRANCH_NAME_PATTERN
@@ -27,7 +27,6 @@ workflow:
       && $JIRA_TICKET !~ $PRODUCTION_JIRA_TICKET_PATTERN
     when: never
   - !reference [.container image jobs, workflow rules]
-  - when: always
 
 .build container image job:
   extends: .kaniko build container image job
