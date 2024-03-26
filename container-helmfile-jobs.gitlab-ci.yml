@@ -35,7 +35,7 @@ variables:
       $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
       && $CI_COMMIT_BRANCH =~ $RELEASE_BRANCH_NAME_PATTERN
     when: never
-    - when: always
+  - when: always
 
 .promote release container image job:
   extends: .kaniko clone container image job
