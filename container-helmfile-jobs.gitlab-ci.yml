@@ -28,6 +28,12 @@ workflow:
     when: never
   - !reference [.container image jobs, workflow rules]
 
+.build container image job:
+  extends: .kaniko build container image job
+  rules:
+  - if: $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+    when: never
+
 .promote release container image job:
   extends: .kaniko clone container image job
   rules:
