@@ -47,7 +47,7 @@ variables:
   variables:
     CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-production
 
-.deploy environment job:
+.trigger helm chart project job:
   rules:
   - if: $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
     when: never
@@ -64,7 +64,7 @@ variables:
       UPSTREAM_ENVIRONMENT_AUTOSTOP: 2 hours
   stage: deploy
   trigger:
-    project: $HELM_CHART_PROJECT
+    project: $HELM_CHART_PROJECT_PATH
     strategy: depend
   variables:
     HELM_CHART_APP_VERSION: $CI_COMMIT_REF_SLUG
