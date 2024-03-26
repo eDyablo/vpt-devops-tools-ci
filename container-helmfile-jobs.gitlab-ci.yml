@@ -27,6 +27,7 @@ workflow:
       && $JIRA_TICKET !~ $PRODUCTION_JIRA_TICKET_PATTERN
     when: never
   - !reference [.container image jobs, workflow rules]
+  when: always
 
 .build container image job:
   extends: .kaniko build container image job
