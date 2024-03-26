@@ -32,16 +32,16 @@ variables:
     reports:
       dotenv: build-container-image.env
   script:
-  - | # Declare functions
+  - |- # Declare functions
     function list_append() {
       local list=${1}; shift
       local items=$(eval echo $"${list}")
       eval ${list}=\"${items:+${items} }${@}\"
     }
-  - | # Sanitize variables
+  - |- # Sanitize variables
     VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN#/*}
     VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN%/*}
-  - | # Set container image related variables
+  - |- # Set container image related variables
     CONTAINER_IMAGE_BASE_NAME=${CONTAINER_IMAGE_BASE_NAME:-$CI_PROJECT_PATH_SLUG}
     CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
     if [ ! ${CONTAINER_IMAGE_TAG} ]; then
@@ -61,18 +61,18 @@ variables:
       "org.opencontainers.image.source=${CI_PROJECT_URL}" \
       "org.opencontainers.image.vendor=ViaPath" \
       "org.opencontainers.image.version=${CI_COMMIT_TAG:-g${CI_COMMIT_SHORT_SHA}}"
-  - > # Authorize to container image registry
+  - >- # Authorize to container image registry
     echo
     "{\"auths\":{\"${CONTAINER_IMAGE_REGISTRY/\/*}\":{\"auth\":\"$(echo -n ${CONTAINER_IMAGE_REGISTRY_USER}:${CONTAINER_IMAGE_REGISTRY_PASSWORD} | base64)\"}}}"
     > /kaniko/.docker/config.json
-  - > # Build and publish container image
+  - >- # Build and publish container image
     ${KANIKO_EXECUTOR}
     ${CONTAINER_IMAGE_NAME:+--destination=${CONTAINER_IMAGE_NAME}}
     ${DOCKERFILE_CONTEXT:+--context=${DOCKERFILE_CONTEXT}}
     ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME}}
     $(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read build_arg; do [ "$build_arg" ] && echo "--build-arg=${build_arg}"; done)
     $(for label in ${CONTAINER_IMAGE_LABELS}; do echo --label=${label}; done)
-  - | # Store variables into artifact to pass them to further jobs
+  - |- # Store variables into artifact to pass them to further jobs
     (
       echo CONTAINER_IMAGE_NAME=$CONTAINER_IMAGE_NAME
       echo CONTAINER_IMAGE_REPOSITORY=$CONTAINER_IMAGE_REPOSITORY
