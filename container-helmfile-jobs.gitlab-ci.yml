@@ -27,3 +27,16 @@ workflow:
       && $JIRA_TICKET !~ $PRODUCTION_JIRA_TICKET_PATTERN
     when: never
   - !reference [.container image jobs, workflow rules]
+
+.promote release container image job:
+  extends: .kaniko clone container image job
+  rules:
+  - if: >-
+      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      && $CI_COMMIT_BRANCH =~ $RELEASE_BRANCH_NAME_PATTERN
+  script:
+  - SOURCE_CONTAINER_IMAGE_NAME=${ARTIFACTORY_URL}/dkr-release/${CONTAINER_IMAGE_BASE_NAME}:${CI_COMMIT_REF_SLUG}
+  - CONTAINER_IMAGE_TAG=${CI_COMMIT_BRANCH##*/}-g${CI_COMMIT_SHORT_SHA}
+  - !reference [.kaniko clone container image job, script]
+  variables:
+    CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-production
