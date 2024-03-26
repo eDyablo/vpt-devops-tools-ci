@@ -65,6 +65,7 @@ variables:
       DEPLOYMENT_NAME_SUFFIX: -p${CI_PROJECT_ID}-${CI_COMMIT_REF_SLUG}
       HELMFILE_ENVIRONMENT: dev
       UPSTREAM_ENVIRONMENT_AUTOSTOP: 2 hours
+      UPSTREAM_ENVIRONMENT_TIER: development
   stage: deploy
   trigger:
     project: $HELM_CHART_PROJECT_PATH
