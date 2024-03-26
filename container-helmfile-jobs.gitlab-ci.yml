@@ -46,3 +46,27 @@ variables:
   - !reference [.kaniko clone container image job, script]
   variables:
     CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-production
+
+.deploy environment job:
+  rules:
+  - if: $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+    when: never
+  - if: $CI_COMMIT_BRANCH =~ $QA_BRANCH_NAME_PATTERN
+    variables:
+      DEPLOYMENT_NAME_SUFFIX: ''
+      HELMFILE_ENVIRONMENT: qa
+  - if: >-
+      $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      && $CI_COMMIT_TAG == null
+    variables:
+      DEPLOYMENT_NAME_SUFFIX: -p${CI_PROJECT_ID}-${CI_COMMIT_REF_SLUG}
+      HELMFILE_ENVIRONMENT: dev
+      UPSTREAM_ENVIRONMENT_AUTOSTOP: 2 hours
+  stage: deploy
+  trigger:
+    project: $HELM_CHART_PROJECT
+    strategy: depend
+  variables:
+    HELM_CHART_APP_VERSION: $CI_COMMIT_REF_SLUG
+    HELM_CHART_VERSION: "@{HELM_CHART_SOURCE_VERSION}-${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}"
+    UPSTREAM_ENVIRONMENT_NAME: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}
