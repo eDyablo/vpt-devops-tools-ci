@@ -1,23 +1,23 @@
 include: container-image-jobs.yaml
 
 variables:
-  PIPELINE_ACTION:
-    description: Selects pipeline workflow.
-    options:
-    - 'default run'
-    - 'deploy selected release to production'
-    value: 'default run'
+  # PIPELINE_ACTION:
+  #   description: Selects pipeline workflow.
+  #   options:
+  #   - 'default run'
+  #   - 'deploy selected release to production'
+  #   value: 'default run'
   JIRA_TICKET:
     description: Reference ticket. Required for production deployment.
     value: ''
   PIPELINE_ACTION_DEFAULT: 'default run'
   PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
 
-.build container image job:
-  extends: .kaniko build container image job
-  rules:
-  - if: >-
-      $PIPELINE_ACTION && $PIPELINE_ACTION == PIPELINE_ACTION_DEFAULT
-      && $CI_COMMIT_BRANCH =~ $RELEASE_BRANCH_NAME_PATTERN
-    when: never
-  - when: always
+# .build container image job:
+#   extends: .kaniko build container image job
+#   rules:
+#   - if: >-
+#       $PIPELINE_ACTION && $PIPELINE_ACTION == PIPELINE_ACTION_DEFAULT
+#       && $CI_COMMIT_BRANCH =~ $RELEASE_BRANCH_NAME_PATTERN
+#     when: never
+#   - when: always
