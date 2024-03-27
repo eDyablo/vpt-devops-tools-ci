@@ -1,0 +1,6 @@
+templates:
+  base:
+    name: {{ .Values.deploymentReleaseName }}
+    namespace: {{ .Values.deploymentNamespace }}
+    labels:
+      deployment: {{ .Values.deploymentBaseName }}
