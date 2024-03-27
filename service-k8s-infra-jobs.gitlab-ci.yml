@@ -13,6 +13,10 @@ variables:
   PIPELINE_ACTION_DEFAULT: 'default run'
   PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
 
+wokflow:
+  rules:
+  - when: always
+
 # .build container image job:
 #   extends: .kaniko build container image job
 #   rules:
