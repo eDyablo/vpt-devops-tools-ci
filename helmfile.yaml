@@ -17,6 +17,12 @@ values.
 {{- range $_, $entry := readDirEntries $infrastructurePath }}
   {{- if $entry.IsDir }}
     {{- $envPath := list $infrastructurePath $entry.Name | join "/" }}
+    {{- range readDir $envPath }}
+      {{- if . | hasSuffix "reference" }}
+        {{- $reference := . | readFile | trim }}
+        {{- $envPath = list ($envPath | trimSuffix $entry.Name) $reference | join "" }}
+      {{- end }}
+    {{- end }}
     {{- $environment := dict "path" $envPath }}
     {{- $environments := set $environments $entry.Name $environment }}
   {{- end }}
@@ -78,7 +84,17 @@ subdirectory is treated as sub-helmfile.
 {{- $environments := dict }}
 {{- range $_, $entry := readDirEntries $infrastructurePath }}
   {{- if $entry.IsDir }}
+    {{- $environment := dict }}
     {{- $envPath := list $infrastructurePath $entry.Name | join "/" }}
+    {{- range readDir $envPath }}
+      {{- if . | hasSuffix "reference" }}
+        {{- $environment = $environment | merge (dict
+          "valuesFilePath" (list $envPath "values.yaml" | join "/")
+        ) }}
+        {{- $reference := . | readFile | trim }}
+        {{- $envPath = list ($envPath | trimSuffix $entry.Name) $reference | join "" }}
+      {{- end }}
+    {{- end }}
     {{- $deployments := dict }}
     {{- range $_, $entry := readDirEntries $envPath }}
       {{- if $entry.IsDir }}
@@ -87,9 +103,10 @@ subdirectory is treated as sub-helmfile.
         {{- $deployments := set $deployments $deploymentName $deployment }}
       {{- end }}
     {{- end }}
-    {{- $environment := dict
+    {{- $environment = $environment | merge (dict
       "path" $envPath
-      "deployments" $deployments }}
+      "deployments" $deployments
+    ) }}
     {{- $environments := set $environments $entry.Name $environment }}
   {{- end }}
 {{- end }}
@@ -219,6 +236,9 @@ helmfiles: # generated from $environments collected by the code above
     - # Pass down current context values
       {{- $.Values | toYaml | trim | nindent 6 }}
     - {{ $deploymentValuesPath }}
+    {{- with $environment | getOrNil "valuesFilePath" }}
+    - {{ . }}
+    {{- end }}
     {{- with $locals | getOrNil "ci.annotations" }}
     - ci:
         annotations:
