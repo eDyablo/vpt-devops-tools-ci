@@ -2,18 +2,15 @@ include: container-image-jobs.yaml
 
 variables:
   PIPELINE_ACTION:
-    description: >-
-      Selects pipeline workflow.
-      | default run
-      | deploy selected release to production
+    description: Selects pipeline workflow.
     options:
-    - default run
-    - deploy selected release to production
-    value: default run
+    - 'default run'
+    - 'deploy selected release to production'
+    value: 'default run'
   JIRA_TICKET:
     description: Reference ticket. Required for production deployment.
     value: ''
-  PIPELINE_ACTION_DEFAULT: default run
+  PIPELINE_ACTION_DEFAULT: 'default run'
   PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
 
 .build container image job:
