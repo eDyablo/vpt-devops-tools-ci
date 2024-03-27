@@ -7,9 +7,9 @@ variables:
       | default run
       | deploy selected release to production
     options:
-    - $PIPELINE_ACTION_DEFAULT
+    - default run
     - deploy selected release to production
-    value: $PIPELINE_ACTION_DEFAULT
+    value: default run
   JIRA_TICKET:
     description: Reference ticket. Required for production deployment.
     value: ''
