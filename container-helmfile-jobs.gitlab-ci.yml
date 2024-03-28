@@ -4,7 +4,7 @@ variables:
   PIPELINE_ACTION:
     description: Select pipeline action. 
     options:
-    - $PIPELINE_ACTION_DEFAULT_RUN
+    - Default run
     - Deploy release to production
     value: Default run
   DEPLOY_RELEASE:
