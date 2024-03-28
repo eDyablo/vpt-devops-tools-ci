@@ -51,6 +51,7 @@ variables:
   - !reference [.kaniko clone container image job, script]
   variables:
     CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-production
+    GIT_STRATEGY: none
 
 .trigger helm chart project job:
   rules:
