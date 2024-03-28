@@ -1,6 +1,12 @@
 include: container-image-jobs.yaml
 
 variables:
+  PIPELINE_ACTION:
+    description: Select pipeline action. 
+    options:
+    - run
+    - deploy
+    value: run
   DEPLOY_RELEASE:
     description: Deploy selected release branch.
     options:
