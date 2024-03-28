@@ -2,35 +2,30 @@ include: container-image-jobs.yaml
 
 variables:
   PIPELINE_ACTION:
-    description: Select pipeline action. 
+    description: 'Default run | Deploy release to production'
     options:
     - Default run
     - Deploy release to production
     value: Default run
-  DEPLOY_RELEASE:
-    description: Deploy selected release branch.
-    options:
-    - 'yes'
-    - 'no'
-    value: 'no'
   JIRA_TICKET:
     description: Reference ticket. Required for production deployment.
     value: ''
   PIPELINE_ACTION_DEFAULT_RUN: Default run
+  PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION: Deploy release to production
   PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
 
 .container helmfile jobs:
   workflow rules:
   - if: >-
-      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $CI_COMMIT_BRANCH !~ $RELEASE_BRANCH_NAME_PATTERN
     when: never
   - if: >-
-      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $JIRA_TICKET == ''
     when: never
   - if: >-
-      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $JIRA_TICKET !~ $PRODUCTION_JIRA_TICKET_PATTERN
     when: never
   - !reference [.container image jobs, workflow rules]
@@ -39,7 +34,7 @@ variables:
   extends: .kaniko build container image job
   rules:
   - if: >-
-      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $CI_COMMIT_BRANCH =~ $RELEASE_BRANCH_NAME_PATTERN
     when: never
   - when: always
@@ -48,7 +43,7 @@ variables:
   extends: .kaniko clone container image job
   rules:
   - if: >-
-      $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $CI_COMMIT_BRANCH =~ $RELEASE_BRANCH_NAME_PATTERN
   script:
   - SOURCE_CONTAINER_IMAGE_NAME=${ARTIFACTORY_URL}/dkr-release/${CONTAINER_IMAGE_BASE_NAME:-$CI_PROJECT_PATH_SLUG}:${CI_COMMIT_REF_SLUG}
@@ -59,7 +54,7 @@ variables:
 
 .trigger helm chart project job:
   rules:
-  - if: $DEPLOY_RELEASE && $DEPLOY_RELEASE == 'yes'
+  - if: $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
     when: never
   - if: $CI_COMMIT_BRANCH =~ $QA_BRANCH_NAME_PATTERN
     variables:
