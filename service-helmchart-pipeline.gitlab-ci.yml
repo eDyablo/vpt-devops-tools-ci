@@ -3,7 +3,7 @@ include: helm-jobs.yaml
 .trigger helmfile infra project job:
   rules:
   - if: >-
-      && $HELMFILE_ENVIRONMENT
+      $HELMFILE_ENVIRONMENT
       && $UPSTREAM_ENVIRONMENT_NAME
   stage: deploy
   trigger:
