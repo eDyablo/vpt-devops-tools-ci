@@ -4,9 +4,9 @@ variables:
   PIPELINE_ACTION:
     description: Select pipeline action. 
     options:
-    - run
-    - deploy
-    value: run
+    - default run
+    - deploy release to production
+    value: default run
   DEPLOY_RELEASE:
     description: Deploy selected release branch.
     options:
