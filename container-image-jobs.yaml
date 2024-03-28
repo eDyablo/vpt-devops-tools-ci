@@ -78,6 +78,8 @@ variables:
       echo CONTAINER_IMAGE_REPOSITORY=$CONTAINER_IMAGE_REPOSITORY
       echo CONTAINER_IMAGE_TAG=$CONTAINER_IMAGE_TAG
     ) >> build-container-image.env
+  tags:
+  - $RUNNER_TAG_BUILD_CONTAINER_IMAGE
 
 .kaniko clone container image job:
   extends: .kaniko build container image job
@@ -86,3 +88,5 @@ variables:
     echo FROM ${SOURCE_CONTAINER_IMAGE_NAME}
     > ${DOCKERFILE_CONTEXT:=.}/${DOCKERFILE_NAME:=Dockerfile}
   - !reference [.kaniko build container image job, script]
+  tags:
+  - !reference [.kaniko build container image job, tags]
