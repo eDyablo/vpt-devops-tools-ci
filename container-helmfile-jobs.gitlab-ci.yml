@@ -55,8 +55,6 @@ variables:
 
 .trigger helm chart project job:
   rules:
-  - if: $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-    when: never
   - if: $CI_COMMIT_BRANCH =~ $QA_BRANCH_NAME_PATTERN
     variables:
       DEPLOYMENT_NAME_SUFFIX: ''
