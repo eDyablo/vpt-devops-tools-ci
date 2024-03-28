@@ -4,9 +4,9 @@ variables:
   PIPELINE_ACTION:
     description: Select pipeline action. 
     options:
-    - default run
-    - deploy release to production
-    value: default run
+    - $PIPELINE_ACTION_DEFAULT_RUN
+    - Deploy release to production
+    value: Default run
   DEPLOY_RELEASE:
     description: Deploy selected release branch.
     options:
@@ -16,6 +16,7 @@ variables:
   JIRA_TICKET:
     description: Reference ticket. Required for production deployment.
     value: ''
+  PIPELINE_ACTION_DEFAULT_RUN: Default run
   PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
 
 .container helmfile jobs:
