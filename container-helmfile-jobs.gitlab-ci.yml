@@ -10,7 +10,7 @@ variables:
   HELM_CHART_APP_VERSION: $CONTAINER_IMAGE_TAG
   PIPELINE_ACTION_DEFAULT_RUN: Default run
   PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION: Deploy release to production
-  PRODUCTION_JIRA_TICKET_PATTERN: /^DEPX-[0-9]{3,5}$/
+  JIRA_TICKET_PRODUCTION_PATTERN: /^DEPX-[0-9]{3,5}$/
   # UI
   PIPELINE_ACTION:
     description: 'Default run | Deploy release to production'
@@ -34,7 +34,7 @@ variables:
     when: never
   - if: >-
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $JIRA_TICKET !~ $PRODUCTION_JIRA_TICKET_PATTERN
+      && $JIRA_TICKET !~ $JIRA_TICKET_PRODUCTION_PATTERN
     when: never
   - !reference [.container image jobs, workflow rules]
 
