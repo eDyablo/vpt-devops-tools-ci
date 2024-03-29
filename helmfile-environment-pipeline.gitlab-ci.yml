@@ -9,7 +9,7 @@ deploy environment:
     name: $ENVIRONMENT_NAME
     on_stop: remove upstream
 
-remove upstream:
+remove environment:
   extends: .destroy helmfile job
   needs:
   - job: deploy environment
