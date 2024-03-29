@@ -1,1 +1,1 @@
-include: helmfile-infra/infra-pipeline.gitla-ci.yml
+include: helmfile-infra/infra-pipeline.gitlab-ci.yml
