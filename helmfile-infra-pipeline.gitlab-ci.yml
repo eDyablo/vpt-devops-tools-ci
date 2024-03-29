@@ -20,7 +20,7 @@ workflow:
 
 environment:
   trigger:
-    include: helmfile-environment-pipeline.gitlab-ci
+    include: helmfile-environment-pipeline.gitlab-ci.yml
 
 # deploy upstream:
 #   extends: .deploy helmfile job
