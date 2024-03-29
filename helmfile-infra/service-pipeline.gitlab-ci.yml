@@ -33,7 +33,7 @@ deploy environment:
   rules:
   - if: $PIPELINE_CUSTOM_JOBS =~ /^deploy environment$/m
     when: never
-  - when: on_success
+  - !reference [.deploy environment job, rules]
 
 .deploy environment job:
   extends: .trigger helm chart project job
