@@ -1,5 +1,3 @@
-# include: helmfile-jobs.yaml
-
 variables:
   ENVIRONMENT_NAME_DEVELOPMENT: dev
   ENVIRONMENT_NAME_PRODUCTION: production
@@ -35,25 +33,3 @@ environment:
     ENVIRONMENT_NAME: $UPSTREAM_ENVIRONMENT_NAME
     HELMFILE_ENVIRONMENT: $HELMFILE_ENVIRONMENT
     HELMFILE_ENVS: $HELMFILE_ENVS
-
-# deploy upstream:
-#   extends: .deploy helmfile job
-#   rules:
-#   - if: >-
-#       $CI_PIPELINE_SOURCE == 'pipeline'
-#       && $HELMFILE_ENVIRONMENT
-#       && $UPSTREAM_ENVIRONMENT_NAME
-#   tags: [$JOB_RUNNER_TAG_DEPLOYMENT]
-#   environment:
-#     auto_stop_in: $UPSTREAM_ENVIRONMENT_AUTOSTOP
-#     name: $UPSTREAM_ENVIRONMENT_NAME
-#     on_stop: remove upstream
-
-# remove upstream:
-#   extends: .destroy helmfile job
-#   needs:
-#   - job: deploy upstream
-#   rules: !reference [deploy upstream, rules]
-#   tags: !reference [deploy upstream, tags]
-#   environment:
-#     name: !reference [deploy upstream, environment, name]
