@@ -28,6 +28,13 @@ workflow:
   - !reference [.service pipeline, workflow rules]
   - when: always
 
+promote container image:
+  extends: .promote container image job
+  rules:
+  - if: $PIPELINE_CUSTOM_JOBS =~ /^promote container image$/m
+    when: never
+  - !reference [.promote container image job, rules]
+
 deploy environment:
   extends: .deploy environment job
   rules:
@@ -63,7 +70,7 @@ deploy environment:
     when: never
   - when: always
 
-.promote release container image job:
+.promote container image job:
   extends: .kaniko clone container image job
   rules:
   - if: >-
