@@ -27,6 +27,12 @@ workflow:
   - !reference [.service pipeline, workflow rules]
   - when: always
 
+deploy environment:
+  extends: .trigger helm chart project job
+  rules:
+  - if: $PIPELINE_CUSTOM_JOBS =~ /^deploy$/m
+    when: never
+
 .service pipeline:
   workflow rules:
   - if: >-
