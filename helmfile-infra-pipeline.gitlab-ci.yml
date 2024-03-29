@@ -28,6 +28,7 @@ environment:
     include:
     - file: helmfile-environment-pipeline.gitlab-ci.yml
       project: devops/tools/ci
+    strategy: depend
   variables:
     DEPLOYMENT_NAME_SUFFIX: $DEPLOYMENT_NAME_SUFFIX
     ENVIRONMENT_AUTOSTOP: $UPSTREAM_ENVIRONMENT_AUTOSTOP
