@@ -1,4 +1,4 @@
-include: ../container-image-jobs.yaml
+include: container-image-jobs.yaml
 
 variables:
   ENVIRONMENT_NAME_DEVELOPMENT: dev
