@@ -1,4 +1,12 @@
-include: helmfile-infra/pipeline-base.gitlab-ci.yml
+variables:
+  ENVIRONMENT_NAME_DEVELOPMENT: dev
+  ENVIRONMENT_NAME_PRODUCTION: production
+  ENVIRONMENT_NAME_QA: qa
+  ENVIRONMENT_NAME_RELEASE: release
+  ENVIRONMENT_NAME_STAGING: staging
+  ENVIRONMENT_NAME_TESTING: testing
+  JOB_RUNNER_TAG_DEPLOYMENT_DEFAULT: gtl-k8s-dev
+  JOB_RUNNER_TAG_DEPLOYMENT_PRODUCTION: k8cmd
 
 workflow:
   rules:
