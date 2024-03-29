@@ -22,7 +22,12 @@ variables:
     description: Reference ticket. Required for production deployment.
     value: ''
 
-.container helmfile jobs:
+workflow:
+  rules:
+  - !reference [.service pipeline, worflow rules]
+  when: always
+
+.service pipeline:
   workflow rules:
   - if: >-
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
