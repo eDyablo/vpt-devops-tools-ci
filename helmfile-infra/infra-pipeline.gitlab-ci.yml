@@ -24,7 +24,7 @@ environment:
       && $UPSTREAM_ENVIRONMENT_NAME
   trigger:
     include:
-    - file: helmfile-environment-pipeline.gitlab-ci.yml
+    - file: helmfile-infra/environment-pipeline.gitlab-ci.yml
       project: devops/tools/ci
     strategy: depend
   variables:
