@@ -7,7 +7,7 @@ deploy environment:
   environment:
     auto_stop_in: $ENVIRONMENT_AUTOSTOP
     name: $ENVIRONMENT_NAME
-    on_stop: remove upstream
+    on_stop: remove environment
 
 remove environment:
   extends: .destroy helmfile job
