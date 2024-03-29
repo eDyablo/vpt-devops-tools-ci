@@ -31,6 +31,8 @@ workflow:
 build container image:
   extends: .build container image job
   rules:
+  - if: $PIPELINE_CUSTOM_JOBS =~ /^build container image$/m
+    when: never
   - !reference [.build container image job, rules]
   - when: on_success
 
