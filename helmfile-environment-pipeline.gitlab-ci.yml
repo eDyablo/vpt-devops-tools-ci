@@ -13,7 +13,6 @@ remove upstream:
   extends: .destroy helmfile job
   needs:
   - job: deploy environment
-  rules: !reference [deploy environment, rules]
   tags: !reference [deploy environment, tags]
   environment:
     name: !reference [deploy environment, environment, name]
