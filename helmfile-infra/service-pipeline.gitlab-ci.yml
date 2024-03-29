@@ -28,6 +28,9 @@ workflow:
   - !reference [.service pipeline, workflow rules]
   - when: always
 
+build container image:
+  extends: .build container image job
+
 promote container image:
   extends: .promote container image job
   rules:
