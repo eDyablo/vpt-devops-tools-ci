@@ -25,7 +25,7 @@ variables:
 workflow:
   rules:
   - !reference [.service pipeline, workflow rules]
-  when: always
+  - when: always
 
 .service pipeline:
   workflow rules:
