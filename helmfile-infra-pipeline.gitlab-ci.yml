@@ -1,4 +1,4 @@
-include: helmfile-jobs.yaml
+# include: helmfile-jobs.yaml
 
 variables:
   ENVIRONMENT_NAME_DEVELOPMENT: dev
@@ -10,40 +10,36 @@ variables:
   JOB_RUNNER_TAG_DEPLOYMENT_DEFAULT: gtl-k8s-dev
   JOB_RUNNER_TAG_DEPLOYMENT_PRODUCTION: k8cmd
 
-# workflow:
-#   rules:
-#   - if: $HELMFILE_ENVIRONMENT == $ENVIRONMENT_NAME_PRODUCTION
-#     variables:
-#       JOB_RUNNER_TAG_DEPLOYMENT: $JOB_RUNNER_TAG_DEPLOYMENT_PRODUCTION
-#   - variables:
-#       JOB_RUNNER_TAG_DEPLOYMENT: $JOB_RUNNER_TAG_DEPLOYMENT_DEFAULT
-
-deploy upstream:
-  extends: .deploy helmfile job
+workflow:
   rules:
-  - if: >-
-      ("not"=="") == (
-        $CI_PIPELINE_SOURCE == 'pipeline'
-        && $HELMFILE_ENVIRONMENT
-        && $UPSTREAM_ENVIRONMENT_NAME
-      )
-    when: never
   - if: $HELMFILE_ENVIRONMENT == $ENVIRONMENT_NAME_PRODUCTION
     variables:
       JOB_RUNNER_TAG_DEPLOYMENT: $JOB_RUNNER_TAG_DEPLOYMENT_PRODUCTION
   - variables:
       JOB_RUNNER_TAG_DEPLOYMENT: $JOB_RUNNER_TAG_DEPLOYMENT_DEFAULT
-  tags: [$JOB_RUNNER_TAG_DEPLOYMENT]
-  environment:
-    auto_stop_in: $UPSTREAM_ENVIRONMENT_AUTOSTOP
-    name: $UPSTREAM_ENVIRONMENT_NAME
-    on_stop: remove upstream
 
-remove upstream:
-  extends: .destroy helmfile job
-  needs:
-  - job: deploy upstream
-  rules: !reference [deploy upstream, rules]
-  tags: !reference [deploy upstream, tags]
-  environment:
-    name: !reference [deploy upstream, environment, name]
+environment:
+  trigger:
+    include: helmfile-environment-pipeline.gitlab-ci
+
+# deploy upstream:
+#   extends: .deploy helmfile job
+#   rules:
+#   - if: >-
+#       $CI_PIPELINE_SOURCE == 'pipeline'
+#       && $HELMFILE_ENVIRONMENT
+#       && $UPSTREAM_ENVIRONMENT_NAME
+#   tags: [$JOB_RUNNER_TAG_DEPLOYMENT]
+#   environment:
+#     auto_stop_in: $UPSTREAM_ENVIRONMENT_AUTOSTOP
+#     name: $UPSTREAM_ENVIRONMENT_NAME
+#     on_stop: remove upstream
+
+# remove upstream:
+#   extends: .destroy helmfile job
+#   needs:
+#   - job: deploy upstream
+#   rules: !reference [deploy upstream, rules]
+#   tags: !reference [deploy upstream, tags]
+#   environment:
+#     name: !reference [deploy upstream, environment, name]
