@@ -1,17 +1,12 @@
 include: helmfile-jobs.yaml
 
-deploy upstream:
+deploy environment:
   extends: .deploy helmfile job
-  rules:
-  - if: >-
-      $CI_PIPELINE_SOURCE == 'pipeline'
-      && $HELMFILE_ENVIRONMENT
-      && $UPSTREAM_ENVIRONMENT_NAME
   tags:
   - $JOB_RUNNER_TAG_DEPLOYMENT
   environment:
-    auto_stop_in: $UPSTREAM_ENVIRONMENT_AUTOSTOP
-    name: $UPSTREAM_ENVIRONMENT_NAME
+    auto_stop_in: $ENVIRONMENT_AUTOSTOP
+    name: $ENVIRONMENT_NAME
     on_stop: remove upstream
 
 remove upstream:
