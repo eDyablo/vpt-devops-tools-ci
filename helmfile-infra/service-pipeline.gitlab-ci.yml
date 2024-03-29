@@ -28,10 +28,13 @@ workflow:
   - when: always
 
 deploy environment:
-  extends: .trigger helm chart project job
+  extends: .deploy environment job
   rules:
-  - if: $PIPELINE_CUSTOM_JOBS =~ /^deploy$/m
+  - if: $PIPELINE_CUSTOM_JOBS =~ /^deploy environment$/m
     when: never
+
+.deploy environment job:
+  extends: .trigger helm chart project job
 
 .service pipeline:
   workflow rules:
