@@ -22,6 +22,11 @@ variables:
     description: Reference ticket. Required for production deployment.
     value: ''
 
+workflow:
+  rules:
+  - !reference [.service pipeline, workflow rules]
+  when: always
+
 .service pipeline:
   workflow rules:
   - if: >-
@@ -37,11 +42,6 @@ variables:
       && $JIRA_TICKET !~ $JIRA_TICKET_PRODUCTION_PATTERN
     when: never
   - !reference [.container image jobs, workflow rules]
-
-workflow:
-  rules:
-  - !reference [.service pipeline, worflow rules]
-  when: always
 
 .build container image job:
   extends: .kaniko build container image job
