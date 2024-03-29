@@ -5,8 +5,7 @@ variables:
 .helmfile job:
   image: ${ARTIFACTORY_URL}/dkr/devops-tools-helmfile-job-runner
   before_script:
-  - 
-    - $(echo "$HELMFILE_ENVS" | while read env; do export $env ; done)
+  - echo "$HELMFILE_ENVS" | while read item; do export $item; done
   - > # Set environment variables
     HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT:-$CI_ENVIRONMENT_SLUG}
   - > # Render helmfile values file
