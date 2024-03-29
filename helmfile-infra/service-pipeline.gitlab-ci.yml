@@ -30,6 +30,9 @@ workflow:
 
 build container image:
   extends: .build container image job
+  rules:
+  - !reference [.build container image job, rulse]
+  - when: on_success
 
 promote container image:
   extends: .promote container image job
