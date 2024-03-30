@@ -9,7 +9,7 @@ stages:
 lint chart:
   extends: .lint chart job
   rules:
-  - if: $PIPELINE_CUSTOM_JOBS =~ /^lint chart$/m
+  - if: $HELMCHART_PIPELINE_CUSTOM_JOBS =~ /^lint chart$/m
     when: never
   - if: $CI_PIPELINE_SOURCE == 'pipeline'
     when: never
@@ -18,14 +18,14 @@ lint chart:
 package chart:
   extends: .package chart job
   rules:
-  - if: $PIPELINE_CUSTOM_JOBS =~ /^package chart$/m
+  - if: $HELMCHART_PIPELINE_CUSTOM_JOBS =~ /^package chart$/m
     when: never
   - !reference [.package chart job, rules]
 
 publish chart:
   extends: .publish chart job
   rules:
-  - if: $PIPELINE_CUSTOM_JOBS =~ /^publish chart$/m
+  - if: $HELMCHART_PIPELINE_CUSTOM_JOBS =~ /^publish chart$/m
     when: never
   - when: on_success
 
