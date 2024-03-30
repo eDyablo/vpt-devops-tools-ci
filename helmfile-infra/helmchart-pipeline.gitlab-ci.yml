@@ -9,7 +9,10 @@ stages:
 lint chart:
   extends: .lint chart job
   rules:
-  - if: $CI_PIPELINE_SOURCE != 'pipeline'
+  - if: $PIPELINE_CUSTOM_JOBS =~ /^package chart$/m
+    when: never
+  - if: $CI_PIPELINE_SOURCE == 'pipeline'
+    when: never
 
 package chart:
   extends: .package chart job
