@@ -1,17 +1,11 @@
 include: helm-jobs.yaml
 
-stages:
-- test
-- build
-- pre deploy
-- deploy
-
 .trigger helmfile infra project job:
   rules:
   - if: >-
       $HELMFILE_ENVIRONMENT
       && $UPSTREAM_ENVIRONMENT_NAME
-  stage: pre deploy
+  stage: deploy
   trigger:
     project: $INFRA_PROJECT_PATH
     strategy: depend
