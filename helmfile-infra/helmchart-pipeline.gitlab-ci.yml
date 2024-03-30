@@ -3,7 +3,7 @@ include: helm-jobs.yaml
 stages:
 - test
 - build
-- pre deploy
+- publish
 - deploy
 
 lint chart:
@@ -16,7 +16,7 @@ package chart:
 
 publish chart:
   extends: .push chart to artifactory job
-  stage: pre deploy
+  stage: publish
 
 .trigger helmfile infra project job:
   rules:
