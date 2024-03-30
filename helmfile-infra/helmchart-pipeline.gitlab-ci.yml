@@ -23,6 +23,13 @@ package chart:
   - !reference [.package chart job, rules]
 
 publish chart:
+  extends: .publish chart job
+  rules:
+  - if: $PIPELINE_CUSTOM_JOBS =~ /^publish chart$/m
+    when: never
+  - when: on_success
+
+.publish chart job:
   extends: .push chart to artifactory job
   stage: publish
 
