@@ -13,6 +13,7 @@ lint chart:
     when: never
   - if: $CI_PIPELINE_SOURCE == 'pipeline'
     when: never
+  - when: on_success
 
 package chart:
   extends: .package chart job
