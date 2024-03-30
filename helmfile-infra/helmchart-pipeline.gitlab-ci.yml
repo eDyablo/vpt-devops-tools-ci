@@ -13,6 +13,10 @@ lint chart:
 
 package chart:
   extends: .package chart job
+  rules:
+  - if: $PIPELINE_CUSTOM_JOBS =~ /^package chart$/m
+    when: never
+  - !reference [.package chart job, rules]
 
 publish chart:
   extends: .push chart to artifactory job
