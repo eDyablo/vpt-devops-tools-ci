@@ -42,7 +42,7 @@ deploy environment:
     when: never
   - !reference [.deploy environment job, rules]
 
-.deploy environment:
+.deploy environment job:
   extends: .trigger helmfile infra project job
 
 .trigger helmfile infra project job:
