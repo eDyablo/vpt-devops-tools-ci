@@ -35,6 +35,18 @@ build container image:
   - !reference [.build container image job, rules]
   - when: on_success
 
+production checkpoint:
+  rules:
+  - if: >-
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      && $JIRA_TICKET =~ $JIRA_TICKET_PRODUCTION_PATTERN
+  stage: .pre
+  trigger:
+    project: devops-private/production-deployment-gate
+    strategy: depend
+  variables:
+    JIRA_TICKET: $JIRA_TICKET
+
 promote container image:
   extends: .promote container image job
   rules:
