@@ -33,6 +33,18 @@ publish chart:
   extends: .push chart to artifactory job
   stage: publish
 
+deploy environment:
+  extends: .deploy environment job
+  rules:
+  - if: $HELMCHART_PIPELINE_CUSTOM_JOBS =~ /^deploy environment$/m
+    when: never
+  - if: $CI_PIPELINE_SOURCE != 'pipeline'
+    when: never
+  - !reference [.deploy environment job, rules]
+
+.deploy environment:
+  extends: .trigger helmfile infra project job
+
 .trigger helmfile infra project job:
   rules:
   - if: >-
