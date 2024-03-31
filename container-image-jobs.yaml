@@ -32,34 +32,37 @@ variables:
     reports:
       dotenv: build-container-image.env
   script:
-  - |- # Declare functions
-    function list_append() {
-      local list=${1}; shift
-      local items=$(eval echo $"${list}")
-      eval ${list}=\"${items:+${items} }${@}\"
-    }
-  - |- # Sanitize variables
-    VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN#/*}
-    VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN%/*}
-  - |- # Set container image related variables
-    CONTAINER_IMAGE_BASE_NAME=${CONTAINER_IMAGE_BASE_NAME:-$CI_PROJECT_PATH_SLUG}
-    CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
-    if [ ! ${CONTAINER_IMAGE_TAG} ]; then
-      if [[ "${CI_COMMIT_BRANCH}" == "${CI_DEFAULT_BRANCH}" ]]; then
-        CONTAINER_IMAGE_TAG=""
-      elif echo $CI_COMMIT_TAG | grep -Eq $VERSION_TAG_PATTERN; then
-        CONTAINER_IMAGE_TAG=${CI_COMMIT_TAG#v}
-      else
-        CONTAINER_IMAGE_TAG="${CI_COMMIT_REF_SLUG}"
-        list_append CONTAINER_IMAGE_LABELS com.jfrog.artifactory.retention.maxDays=7
+  - # Declare functions
+    - |-
+      list_append() {
+        local list=${1}; shift
+        local items=$(eval echo $"${list}")
+        eval ${list}=\"${items:+${items} }${@}\"
+      }
+  - # Sanitize variables
+    - VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN#/*}
+    - VERSION_TAG_PATTERN=${VERSION_TAG_PATTERN%/*}
+  - # Set container image related variables
+    - CONTAINER_IMAGE_BASE_NAME=${CONTAINER_IMAGE_BASE_NAME:-$CI_PROJECT_PATH_SLUG}
+    - CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
+    - |-
+      if [ ! ${CONTAINER_IMAGE_TAG} ]; then
+        if [[ "${CI_COMMIT_BRANCH}" == "${CI_DEFAULT_BRANCH}" ]]; then
+          CONTAINER_IMAGE_TAG=""
+        elif echo $CI_COMMIT_TAG | grep -Eq $VERSION_TAG_PATTERN; then
+          CONTAINER_IMAGE_TAG=${CI_COMMIT_TAG#v}
+        else
+          CONTAINER_IMAGE_TAG="${CI_COMMIT_REF_SLUG}"
+          list_append CONTAINER_IMAGE_LABELS com.jfrog.artifactory.retention.maxDays=7
+        fi
       fi
-    fi
-    CONTAINER_IMAGE_NAME="${CONTAINER_IMAGE_REPOSITORY}${CONTAINER_IMAGE_TAG:+:${CONTAINER_IMAGE_TAG}}"
-    list_append CONTAINER_IMAGE_LABELS \
-      "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-      "org.opencontainers.image.revision=${CI_COMMIT_SHA}" \
-      "org.opencontainers.image.source=${CI_PROJECT_URL}" \
-      "org.opencontainers.image.vendor=ViaPath" \
+    - CONTAINER_IMAGE_NAME="${CONTAINER_IMAGE_REPOSITORY}${CONTAINER_IMAGE_TAG:+:${CONTAINER_IMAGE_TAG}}"
+    - >-
+      list_append CONTAINER_IMAGE_LABELS
+      "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      "org.opencontainers.image.revision=${CI_COMMIT_SHA}"
+      "org.opencontainers.image.source=${CI_PROJECT_URL}"
+      "org.opencontainers.image.vendor=ViaPath"
       "org.opencontainers.image.version=${CI_COMMIT_TAG:-g${CI_COMMIT_SHORT_SHA}}"
   - >- # Authorize to container image registry
     echo
