@@ -79,6 +79,7 @@ variables:
     ${HELM_CHART_VERSION:+--version=${HELM_CHART_VERSION}}
   - |- # Store variables into artifact to pass them to further jobs
     (
+      echo HELM_CHART_APP_VERSION=$HELM_CHART_APP_VERSION
       echo HELM_CHART_NAME=$HELM_CHART_NAME
       echo HELM_CHART_PACKAGE=${HELM_CHART_NAME}-${HELM_CHART_VERSION}.tgz
       echo HELM_CHART_SOURCE_VERSION=$HELM_CHART_SOURCE_VERSION
