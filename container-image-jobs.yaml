@@ -10,10 +10,10 @@ variables:
 
 .container image jobs:
   workflow rules:
-  - if: $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH =~ $QA_BRANCH_NAME_PATTERN
+  - if: $CI_COMMIT_REF_NAME && $CI_COMMIT_REF_NAME =~ $QA_BRANCH_NAME_PATTERN
     variables:
       CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-qa
-  - if: $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH =~ $RELEASE_BRANCH_NAME_PATTERN
+  - if: $CI_COMMIT_REF_NAME && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
     variables:
       CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-release
   - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ $PRODUCTION_TAG_PATTERN
@@ -47,7 +47,7 @@ variables:
     - CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
     - |-
       if [ ! ${CONTAINER_IMAGE_TAG} ]; then
-        if [[ "${CI_COMMIT_BRANCH}" == "${CI_DEFAULT_BRANCH}" ]]; then
+        if [[ "${CI_COMMIT_REF_NAME}" == "${CI_DEFAULT_BRANCH}" ]]; then
           CONTAINER_IMAGE_TAG=""
         elif echo $CI_COMMIT_TAG | grep -Eq $VERSION_TAG_PATTERN; then
           CONTAINER_IMAGE_TAG=${CI_COMMIT_TAG#v}

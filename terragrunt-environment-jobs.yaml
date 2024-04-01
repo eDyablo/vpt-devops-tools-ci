@@ -1,10 +1,10 @@
 .terragrunt environment job:
   stage: deploy
   rules:
-  - if: $EXCLUDE_BRANCH && $CI_COMMIT_BRANCH =~ $EXCLUDE_BRANCH
+  - if: $EXCLUDE_BRANCH && $CI_COMMIT_REF_NAME =~ $EXCLUDE_BRANCH
     when: never
-  - if: $SELECT_BRANCH && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH =~ $SELECT_BRANCH
-  - if: $SELECT_BRANCH_EXCEPT && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH !~ $SELECT_BRANCH_EXCEPT
+  - if: $SELECT_BRANCH && $CI_COMMIT_REF_NAME && $CI_COMMIT_REF_NAME =~ $SELECT_BRANCH
+  - if: $SELECT_BRANCH_EXCEPT && $CI_COMMIT_REF_NAME && $CI_COMMIT_REF_NAME !~ $SELECT_BRANCH_EXCEPT
   trigger:
     include:
     - project: devops/tools/ci
