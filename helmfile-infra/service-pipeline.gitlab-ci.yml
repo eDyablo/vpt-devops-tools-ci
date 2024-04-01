@@ -149,10 +149,16 @@ deploy environment:
 issue merge request:
   extends: .issue merge request job
   rules:
+  - if: $SERVICE_PIPELINE_CUSTOM_JOBS =~ /^issue merge request$/m
+    when: never
+  - !reference [.issue merge request job, rules]
+
+.issue merge request job:
+  extends: .issue gitlab merge request job
+  rules:
   - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     when: never
   - if: >-
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
-  - when: on_success
   stage: .pre
