@@ -24,6 +24,8 @@ variables:
 
 workflow:
   rules:
+  - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    when: never
   - !reference [.service pipeline, workflow rules]
   - when: always
 
