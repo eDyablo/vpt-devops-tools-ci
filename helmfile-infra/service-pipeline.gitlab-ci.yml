@@ -1,5 +1,6 @@
-include: container-image-jobs.yaml
-#include: gitlab-jobs.gitlab-ci.yml
+include:
+- container-image-jobs.yaml
+- gitlab-jobs.gitlab-ci.yml
 
 variables:
   ENVIRONMENT_NAME_DEVELOPMENT: dev
