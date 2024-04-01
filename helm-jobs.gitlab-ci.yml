@@ -96,7 +96,7 @@ variables:
   script:
   - >- # Push chart package to Artifactory
     helm push-artifactory $HELM_CHART_PACKAGE $HELM_REPO_URL
-  - !reference [.job scripts, sanitize chart variables]
+  #- !reference [.job scripts, sanitize chart variables]
   - |- # Store variables into artifact to pass them to further jobs
     (
       echo HELM_CHART_NAME=$HELM_CHART_NAME
