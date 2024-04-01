@@ -1,4 +1,5 @@
 include: container-image-jobs.yaml
+include: gitlab-jobs.gitlab-ci.yml
 
 variables:
   ENVIRONMENT_NAME_DEVELOPMENT: dev
@@ -144,3 +145,14 @@ deploy environment:
     UPSTREAM_COMMIT_TAG: $CI_COMMIT_TAG
     UPSTREAM_DEFAULT_BRANCH: $CI_DEFAULT_BRANCH
     UPSTREAM_ENVIRONMENT_NAME: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}
+
+issue merge request:
+  extends: .issue merge request job
+  rules:
+  - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    when: never
+  - if: >-
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
+  - when: on_success
+  stage: .pre

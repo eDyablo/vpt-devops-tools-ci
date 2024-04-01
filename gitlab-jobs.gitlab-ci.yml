@@ -1,0 +1,49 @@
+.issue merge request job:
+  stage: .post
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-plain-job-runner
+  script:
+  - # Get merge requests
+    - >-
+      MERGE_REQUEST_URL_QUERY=$(echo "
+      .[]
+      | select(.source_branch==\"${CI_COMMIT_REF_NAME}\"
+      and .target_branch==\"${CI_DEFAULT_BRANCH}\")
+      | .web_url
+      ")
+    - >- # https://docs.gitlab.com/ee/api/merge_requests.html#list-merge-requests | https://curl.se/docs/manpage.html
+      MERGE_REQUEST_URLS=$(
+      curl
+      --fail-with-body
+      --header "PRIVATE-TOKEN:${GITLAB_TOKEN}"
+      --silent
+      ${CI_API_V4_URL}/projects/${MERGE_REQUEST_PROJECT_ID}/merge_requests?state=opened
+      | jq -r "$MERGE_REQUEST_URL_QUERY"
+      )
+  - # Create merge request if not exists yet
+    - if [ -z "$MERGE_REQUEST_URLS" ]; then
+    - |- # https://www.json.org
+      CURL_DATA="{
+      \"project_id\": ${MERGE_REQUEST_PROJECT_ID},
+      \"remove_source_branch\": true,
+      \"source_branch\": \"${MERGE_REQUEST_SOURCE_BRANCH}\",
+      \"squash\": true,
+      \"target_branch\": \"${MERGE_REQUEST_TARGET_BRANCH}\",
+      \"title\": \"merge ${MERGE_REQUEST_SOURCE_BRANCH} to ${MERGE_REQUEST_TARGET_BRANCH}\"
+      }"
+    - >- # https://docs.gitlab.com/ee/api/merge_requests.html#create-mr | https://curl.se/docs/manpage.html
+      curl
+      --data "$CURL_DATA"
+      --fail-with-body
+      --header "Content-Type: application/json"
+      --header "PRIVATE-TOKEN:${GITLAB_TOKEN}"
+      --request POST
+      --silent
+      ${CI_API_V4_URL}/projects/${MERGE_REQUEST_PROJECT_ID}/merge_requests
+      | jq -r '.web_url'
+    - else
+    - echo "$MERGE_REQUEST_URLS"
+    - fi
+  variables:
+    MERGE_REQUEST_PROJECT_ID: $CI_PROJECT_ID
+    MERGE_REQUEST_SOURCE_BRANCH: $CI_COMMIT_REF_NAME
+    MERGE_REQUEST_TARGET_BRANCH: $CI_DEFAULT_BRANCH
