@@ -34,10 +34,10 @@ variables:
   extends: .helm job
   stage: .pre
   script:
-  - > # Update chart dependencies listed in Chart.yaml
+  - >- # Update chart dependencies listed in Chart.yaml
     helm dependency update $HELM_CHART_PATH
     --debug
-  - > # Run a series of tests to verify that the chart is well-formed
+  - >- # Run a series of tests to verify that the chart is well-formed
     helm lint $HELM_CHART_PATH
     --debug
 
@@ -68,16 +68,16 @@ variables:
         HELM_CHART_APP_VERSION=$UPSTREAM_COMMIT_REF_SLUG
       fi
   - !reference [.job scripts, sanitize chart variables]
-  - > # Update chart dependencies listed in Chart.yaml
+  - >- # Update chart dependencies listed in Chart.yaml
     helm dependency update $HELM_CHART_PATH
     --debug
-  - > # Package a chart into a versioned chart archive file
+  - >- # Package a chart into a versioned chart archive file
     helm package $HELM_CHART_PATH
     --debug
     --dependency-update
     ${HELM_CHART_APP_VERSION:+--app-version=$HELM_CHART_APP_VERSION}
     ${HELM_CHART_VERSION:+--version=${HELM_CHART_VERSION}}
-  - | # Store variables into artifact to pass them to further jobs
+  - |- # Store variables into artifact to pass them to further jobs
     (
       echo HELM_CHART_NAME=$HELM_CHART_NAME
       echo HELM_CHART_PACKAGE=${HELM_CHART_NAME}-${HELM_CHART_VERSION}.tgz
@@ -93,10 +93,10 @@ variables:
     reports:
       dotenv: ${CI_JOB_NAME_SLUG}.env
   script:
-  - > # Push chart package to Artifactory
+  - >- # Push chart package to Artifactory
     helm push-artifactory $HELM_CHART_PACKAGE $HELM_REPO_URL
   - !reference [.job scripts, sanitize chart variables]
-  - | # Store variables into artifact to pass them to further jobs
+  - |- # Store variables into artifact to pass them to further jobs
     (
       echo HELM_CHART_NAME=$HELM_CHART_NAME
       echo HELM_CHART_PACKAGE_URL=${HELM_REPO_URL}/${HELM_CHART_NAME}/${HELM_CHART_PACKAGE}
@@ -118,7 +118,7 @@ variables:
     action: start
   resource_group: $CI_JOB_NAME $CI_ENVIRONMENT_NAME
   script:
-  - > # Install or upgrade the release
+  - >- # Install or upgrade the release
     helm upgrade
     $HELM_RELEASE_NAME
     $HELM_CHART_PATH
@@ -131,13 +131,13 @@ variables:
     ${HELM_CHART_VERSION:+--version=${HELM_CHART_VERSION}}
     ${HELM_NAMESPACE:+--namespace=${HELM_NAMESPACE}}
     ${HELM_TIMEOUT:+--timeout=${HELM_TIMEOUT}}
-  - > # Run tests for the release
+  - >- # Run tests for the release
     helm test
     $HELM_RELEASE_NAME
     ${HELM_NAMESPACE:+--namespace=${HELM_NAMESPACE}}
   after_script:
   - !reference [.helm chart release job, after_script]
-  - | # When job is failed printout the release pods containers logs
+  - |- # When job is failed printout the release pods containers logs
     if [ "$CI_JOB_STATUS" == 'failed' ]; then
       kubectl \
         --namespace=$HELM_NAMESPACE \
@@ -159,7 +159,7 @@ variables:
   variables:
     GIT_STRATEGY: none
   script:
-  - > # Remove all resources associated with the specified release
+  - >- # Remove all resources associated with the specified release
     helm uninstall
     $HELM_RELEASE_NAME
     ${HELM_NAMESPACE:+--namespace=${HELM_NAMESPACE}}
