@@ -1,5 +1,1 @@
-.pytest job:
-  stage: test
-  image: ${ARTIFACTORY_URL}/dkr/devops-tools-python-job-runner
-  script:
-  - pytest
+include: python-jobs.gitlab-ci.yml

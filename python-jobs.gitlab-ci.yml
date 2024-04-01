@@ -1,0 +1,5 @@
+.pytest job:
+  stage: test
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-python-job-runner
+  script:
+  - pytest
