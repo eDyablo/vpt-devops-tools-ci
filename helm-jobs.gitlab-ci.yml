@@ -138,17 +138,18 @@ variables:
     ${HELM_NAMESPACE:+--namespace=${HELM_NAMESPACE}}
   after_script:
   - !reference [.helm chart release job, after_script]
-  - |- # When job is failed printout the release pods containers logs
-    if [ "$CI_JOB_STATUS" == 'failed' ]; then
-      kubectl \
-        --namespace=$HELM_NAMESPACE \
-        logs \
-        --all-containers=true \
-        --prefix=true \
-        --selector="app.kubernetes.io/instance=${HELM_RELEASE_NAME}" \
-        --tail=-1 \
-        --timestamps=true
-    fi
+  - # When job is failed printout the release pods containers logs
+    - if [ "$CI_JOB_STATUS" == 'failed' ]; then
+    - >-
+      kubectl
+      --namespace=$HELM_NAMESPACE
+      logs
+      --all-containers=true
+      --prefix=true
+      --selector="app.kubernetes.io/instance=${HELM_RELEASE_NAME}"
+      --tail=-1
+      --timestamps=true
+    - fi
 
 .uninstall helm chart release job:
   extends: .helm chart release job
