@@ -14,7 +14,7 @@ get change log:
   - git fetch $GIT_REMOTE $GIT_BRANCH
   - mkdir -p $(dirname "$CHANGELOG_PATH")
   - >-
-    git log main..
+    git log ${$GIT_BRANCH}..
     --decorate
     --graph
     --pretty=format:'At %ci, %cN committed %h - %s'
