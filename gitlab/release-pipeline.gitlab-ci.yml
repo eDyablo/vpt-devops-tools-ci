@@ -15,18 +15,23 @@ get change log:
     git config
     --global
     --add safe.directory ${CI_BUILDS_DIR}/${CI_PROJECT_PATH}
-  - git fetch $GIT_REMOTE $GIT_BRANCH
+  - GIT_FIRST_REF=${GIT_FIRST_REMOTE}/${GIT_FIRST_BRANCH}
+  - GIT_SECOND_REF=${GIT_SECOND_REMOTE}/${GIT_SECOND_BRANCH}
+  - git fetch ${GIT_FIRST_REF/\// }
+  - git fetch ${GIT_SECOND_REF/\// }
   - mkdir -p $(dirname "$CHANGELOG_PATH")
   - >-
-    git log ${GIT_REMOTE}/${GIT_BRANCH}
+    git log ${GIT_FIRST_REF}..${GIT_SECOND_REF}
     --decorate
     --graph
     --pretty=format:'At %ci, %cN committed %h - %s'
     > $CHANGELOG_PATH
   variables:
     CHANGELOG_PATH: logs/changelog
-    GIT_REMOTE: origin
-    GIT_BRANCH: $CI_DEFAULT_BRANCH
+    GIT_FIRST_REMOTE: origin
+    GIT_FIRST_BRANCH: $CI_DEFAULT_BRANCH
+    GIT_SECOND_REMOTE: origin
+    GIT_SECOND_BRANCH: $CI_COMMIT_REF_NAME
 
 create release:
   stage: apply
