@@ -10,12 +10,13 @@ create release:
     - !reference [.get change log job, script]
   - # Create release via gitlab api
     - RELEASE_NAME="$RELEASE_PROJECT_NAME release $RELEASE_REF_NAME"
+    - RELEASE_REF=${RELEASE_COMMIT_ID:-$RELEASE_REF_NAME}
     - >-
       REQUEST_DATA="{
       \"description\": \"Deploying release\",
-      \"name\": \"${RELEASE_NAME}\",
-      \"ref\": \"${RELEASE_REF_NAME}\",
-      \"tag_name\": \"${RELEASE_TAG_NAME}\"
+      \"name\": \"$RELEASE_NAME\",
+      \"ref\": \"$RELEASE_REF\",
+      \"tag_name\": \"$RELEASE_TAG_NAME\"
       }"
     - >- # https://docs.gitlab.com/ee/api/releases/#create-a-release | https://curl.se/docs/manpage.html
       curl
@@ -28,7 +29,8 @@ create release:
       ${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases
       | jq -r '._links.self // empty'
   variables:
+    RELEASE_COMMIT_ID: $CI_COMMIT_SHA
     RELEASE_PROJECT_ID: $CI_PROJECT_ID
     RELEASE_PROJECT_NAME: $CI_PROJECT_NAME
     RELEASE_REF_NAME: $CI_COMMIT_REF_NAME
-    RELEASE_TAG_NAME: release/${CI_COMMIT_REF_NAME}.${CI_PIPELINE_ID}
+    RELEASE_TAG_NAME: release/${CI_COMMIT_REF_NAME}-g${CI_COMMIT_SHORT_SHA}
