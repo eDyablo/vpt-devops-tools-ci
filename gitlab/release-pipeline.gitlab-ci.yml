@@ -10,7 +10,7 @@ get change log:
     paths:
     - "$CHANGELOG_PATH"
   script:
-  - mkdrir -p $(dirname "$CHANGELOG_PATH")
+  - mkdir -p $(dirname "$CHANGELOG_PATH")
   - >-
     echo test
     > $CHANGELOG_PATH
