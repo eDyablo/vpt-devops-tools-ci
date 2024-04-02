@@ -1,39 +1,11 @@
 include: gitlab/jobs.gitlab-ci.yml
 
-stages:
-- fetch
-- apply
+#release-cli create --name "${CI_PROJECT_NAME} Release $CI_COMMIT_BRANCH" --tag-name $CI_COMMIT_BRANCH.$CI_PIPELINE_ID   --description "Deploying release $deploy_tag" --assets-link "{\"name\":\"Change Log\",\"url\":\"https://$GITLAB_URL/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME/-/jobs/`cat CI_JOB_ID.txt`/artifacts/file/changelog.log\"}"
 
-get change log:
-  stage: fetch
-  artifacts:
-    paths:
-    - $GIT_LOG_PATH
-  image: ${ARTIFACTORY_URL}/dkr/devops-tools-plain-job-runner
-  script:
-  - >-
-    git config
-    --global
-    --add safe.directory $GIT_LOCAL_PATH
-  - git fetch ${GIT_FIRST_REF/\// }
-  - git fetch ${GIT_SECOND_REF/\// }
-  - mkdir -p $(dirname "$GIT_LOG_PATH")
-  - >-
-    git log ${GIT_FIRST_REF}..${GIT_SECOND_REF}
-    --decorate
-    --graph
-    "${GIT_LOG_FORMAT:+--pretty=format:'${GIT_LOG_FORMAT}'}"
-    > "$GIT_LOG_PATH"
-  variables:
-    GIT_LOCAL_PATH: ${CI_BUILDS_DIR}/${CI_PROJECT_PATH}
-    GIT_LOG_FORMAT: At %ci, %cN committed %h - %s
-    GIT_LOG_PATH: changelog
-    GIT_FIRST_REF: origin/${CI_DEFAULT_BRANCH}
-    GIT_SECOND_REF: origin/${CI_COMMIT_REF_NAME}
 
 create release:
-  stage: apply
+  extends: .get change log job
   script:
-  - ls -la
+  - !reference [.get change log job, script]
   variables:
     GIT_STRATEGY: none

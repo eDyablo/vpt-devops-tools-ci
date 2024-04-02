@@ -47,3 +47,31 @@
     MERGE_REQUEST_PROJECT_ID: $CI_PROJECT_ID
     MERGE_REQUEST_SOURCE_BRANCH: $CI_COMMIT_REF_NAME
     MERGE_REQUEST_TARGET_BRANCH: $CI_DEFAULT_BRANCH
+
+.get change log job:
+  artifacts:
+    paths:
+    - $GIT_LOG_PATH
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-plain-job-runner
+  script:
+  - # Prepare environment
+    - >-
+      git config
+      --global
+      --add safe.directory $GIT_LOCAL_PATH
+    - mkdir -p $(dirname "$GIT_LOG_PATH")
+  - # Download objects for both references
+    - git fetch ${GIT_FIRST_REF/\// }
+    - git fetch ${GIT_SECOND_REF/\// }
+  - >- # Get list of commits present in second reference but not in first
+    git log ${GIT_FIRST_REF}..${GIT_SECOND_REF}
+    --decorate
+    --graph
+    "${GIT_LOG_FORMAT:+--pretty=format:'${GIT_LOG_FORMAT}'}"
+    > "$GIT_LOG_PATH"
+  variables:
+    GIT_LOCAL_PATH: ${CI_BUILDS_DIR}/${CI_PROJECT_PATH}
+    GIT_LOG_FORMAT: At %ci, %cN committed %h - %s
+    GIT_LOG_PATH: changelog
+    GIT_FIRST_REF: origin/${CI_DEFAULT_BRANCH}
+    GIT_SECOND_REF: origin/${CI_COMMIT_REF_NAME}
