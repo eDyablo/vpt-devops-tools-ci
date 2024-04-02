@@ -8,13 +8,14 @@ get change log:
   stage: fetch
   artifacts:
     paths:
-    - "$CHANGELOG_NAME"
+    - "$CHANGELOG_PATH"
   script:
+  - mkdrir -p $(dirname "$CHANGELOG_PATH")
   - >-
     echo test
-    > $CHANGELOG_NAME
+    > $CHANGELOG_PATH
   variables:
-    CHANGELOG_NAME: changelog
+    CHANGELOG_PATH: logs/changelog.md
 
 create release:
   stage: apply
