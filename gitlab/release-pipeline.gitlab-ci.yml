@@ -9,15 +9,27 @@ get change log:
   artifacts:
     paths:
     - "$CHANGELOG_PATH"
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-plain-job-runner
   script:
+  - git fetch $GIT_REMOTE $GIT_BRANCH
   - mkdir -p $(dirname "$CHANGELOG_PATH")
+  - >-
+    git log main..
+    --decorate
+    --graph
+    --pretty=format:'At %ci, %cN committed %h - %s'
+    > changelog.log
   - >-
     echo test
     > $CHANGELOG_PATH
   variables:
     CHANGELOG_PATH: logs/changelog.txt
+    GIT_REMOTE: origin
+    GIT_BRANCH: $CI_DEFAULT_BRANCH
 
 create release:
   stage: apply
   script:
   - ls -la
+  variables:
+    GIT_STRATEGY: none
