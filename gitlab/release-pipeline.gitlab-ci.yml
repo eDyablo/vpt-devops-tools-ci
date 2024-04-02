@@ -22,7 +22,7 @@ get change log:
     git log ${GIT_FIRST_REF}..${GIT_SECOND_REF}
     --decorate
     --graph
-    ${GIT_LOG_FORMAT:+--pretty=format:\'${GIT_LOG_FORMAT}\'}
+    "${GIT_LOG_FORMAT:+--pretty=format:'${GIT_LOG_FORMAT}'}"
     > "$GIT_LOG_PATH"
   variables:
     GIT_LOCAL_PATH: ${CI_BUILDS_DIR}/${CI_PROJECT_PATH}
