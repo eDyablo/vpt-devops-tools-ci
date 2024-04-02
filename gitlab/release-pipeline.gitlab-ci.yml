@@ -26,6 +26,7 @@ create release:
       --request POST
       --silent
       ${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases
+      | jq -r '._links.self // empty'
   variables:
     RELEASE_PROJECT_ID: $CI_PROJECT_ID
     RELEASE_PROJECT_NAME: $CI_PROJECT_NAME
