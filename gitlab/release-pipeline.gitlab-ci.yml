@@ -11,6 +11,10 @@ get change log:
     - "$CHANGELOG_PATH"
   image: ${ARTIFACTORY_URL}/dkr/devops-tools-plain-job-runner
   script:
+  - >-
+    git config
+    --global
+    --add safe.directory ${CI_BUILDS_DIR}/${CI_PROJECT_PATH}
   - git fetch $GIT_REMOTE $GIT_BRANCH
   - mkdir -p $(dirname "$CHANGELOG_PATH")
   - >-
