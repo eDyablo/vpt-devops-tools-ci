@@ -22,12 +22,9 @@ get change log:
     --decorate
     --graph
     --pretty=format:'At %ci, %cN committed %h - %s'
-    > changelog.log
-  - >-
-    echo test
     > $CHANGELOG_PATH
   variables:
-    CHANGELOG_PATH: logs/changelog.txt
+    CHANGELOG_PATH: logs/changelog
     GIT_REMOTE: origin
     GIT_BRANCH: $CI_DEFAULT_BRANCH
 
