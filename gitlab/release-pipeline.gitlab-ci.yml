@@ -15,7 +15,7 @@ get change log:
     echo test
     > $CHANGELOG_PATH
   variables:
-    CHANGELOG_PATH: logs/changelog.md
+    CHANGELOG_PATH: logs/changelog.txt
 
 create release:
   stage: apply
