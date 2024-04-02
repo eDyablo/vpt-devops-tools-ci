@@ -6,6 +6,23 @@ include: gitlab/jobs.gitlab-ci.yml
 create release:
   extends: .get change log job
   script:
-  - !reference [.get change log job, script]
+  - # Fetch change log
+    - !reference [.get change log job, script]
+  - # Create release via gitlab api
+    - RELEASE_NAME="$RELEASE_PROJECT_NAME release $RELEASE_REF_NAME"
+    - >-
+      REQUEST_DATA="{
+      \"description\": \"Deploying release\",
+      \"name\": \"${RELEASE_NAME}\"
+      }"
+    - >- # https://docs.gitlab.com/ee/api/releases/#create-a-release | https://curl.se/docs/manpage.html
+      curl
+      --data "$REQUEST_DATA"
+      --header 'Content-Type: application/json'
+      --header "PRIVATE-TOKEN: $GITLAB_TOKEN"
+      --request POST
+      ${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases
   variables:
-    GIT_STRATEGY: none
+    RELEASE_PROJECT_ID: $CI_PROJECT_ID
+    RELEASE_PROJECT_NAME: $CI_PROJECT_NAME
+    RELEASE_REF_NAME: $CI_COMMIT_REF_NAME

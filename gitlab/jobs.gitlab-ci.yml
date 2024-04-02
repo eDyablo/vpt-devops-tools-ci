@@ -70,8 +70,9 @@
     "${GIT_LOG_FORMAT:+--pretty=format:'${GIT_LOG_FORMAT}'}"
     > "$GIT_LOG_PATH"
   variables:
+    GIT_FIRST_REF: origin/${CI_DEFAULT_BRANCH}
     GIT_LOCAL_PATH: ${CI_BUILDS_DIR}/${CI_PROJECT_PATH}
     GIT_LOG_FORMAT: At %ci, %cN committed %h - %s
     GIT_LOG_PATH: changelog
-    GIT_FIRST_REF: origin/${CI_DEFAULT_BRANCH}
     GIT_SECOND_REF: origin/${CI_COMMIT_REF_NAME}
+    GIT_STRATEGY: fetch
