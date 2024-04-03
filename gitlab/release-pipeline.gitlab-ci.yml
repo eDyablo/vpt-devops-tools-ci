@@ -15,6 +15,7 @@ create release:
       --request GET
       --silent
       "${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases/${RELEASE_TAG_NAME//\//%2F}"
+      || echo '{}'
       | jq -r '._links.self // empty'
       )
   - if [ -z "$RELEASE_URL" ]; then
