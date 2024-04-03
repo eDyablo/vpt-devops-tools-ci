@@ -1,7 +1,1 @@
-include: container-image-jobs.yaml
-
-build container image:
-  extends: .kaniko build container image job
-  rules:
-  - exists:
-    - Dockerfile
+include: container-image/pipeline.gitlab-ci.yml

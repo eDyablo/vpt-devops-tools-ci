@@ -1,0 +1,10 @@
+include: container-image/jobs.yaml
+
+build container image:
+  extends: .build container image
+
+.build container image:
+  extends: .kaniko build container image job
+  rules:
+  - exists:
+    - Dockerfile
