@@ -54,6 +54,8 @@ build container image:
 
 .build container image:
   extends: .kaniko build container image job
+  rules:
+  - when: on_success
 
 production checkpoint:
   extends: .production checkpoint
