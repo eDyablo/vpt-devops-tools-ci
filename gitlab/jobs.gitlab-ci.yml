@@ -1,4 +1,4 @@
-.issue gitlab merge request job:
+.gitlab issue merge request job:
   stage: .post
   image: ${ARTIFACTORY_URL}/dkr/devops-tools-plain-job-runner
   script:
@@ -49,7 +49,7 @@
     MERGE_REQUEST_SOURCE_BRANCH: $CI_COMMIT_REF_NAME
     MERGE_REQUEST_TARGET_BRANCH: $CI_DEFAULT_BRANCH
 
-.get change log job:
+.gitlab get change log job:
   artifacts:
     paths:
     - $GIT_LOG_PATH
@@ -78,8 +78,8 @@
     GIT_SECOND_REF: origin/${CI_COMMIT_REF_NAME}
     GIT_STRATEGY: fetch
 
-.create release job:
-  extends: .get change log job
+.gitlab create release job:
+  extends: .gitlab get change log job
   script:
   - # Get release by tag name
     - >- # https://docs.gitlab.com/ee/api/releases/#get-a-release-by-a-tag-name | https://curl.se/docs/manpage.html
