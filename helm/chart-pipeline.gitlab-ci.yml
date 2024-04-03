@@ -1,0 +1,32 @@
+include: helm/jobs.gitlab-ci.yml
+
+stages:
+- test
+- build
+- publish
+- deploy
+
+lint chart:
+  extends: .lint chart
+
+.lint chart:
+  extends: .lint chart job
+  rules:
+  - if: $CI_PIPELINE_SOURCE == 'pipeline'
+    when: never
+  - when: on_success
+  stage: .pre
+
+package chart:
+  extends: .package chart
+
+.package chart:
+  extends: .package chart job
+  stage: build
+
+publish chart:
+  extends: .publish chart
+
+.publish chart:
+  extends: .push chart to artifactory job
+  stage: publish
