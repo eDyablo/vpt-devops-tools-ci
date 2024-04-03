@@ -162,6 +162,8 @@ issue merge request:
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
   stage: .post
+  variables:
+    MERGE_REQUEST_TITLE: $JIRA_TICKET merge $MERGE_REQUEST_SOURCE_BRANCH to $MERGE_REQUEST_TARGET_BRANCH
 
 create release:
   extends: .create release

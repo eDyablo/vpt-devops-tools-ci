@@ -27,7 +27,7 @@
       \"source_branch\": \"${MERGE_REQUEST_SOURCE_BRANCH}\",
       \"squash\": true,
       \"target_branch\": \"${MERGE_REQUEST_TARGET_BRANCH}\",
-      \"title\": \"merge ${MERGE_REQUEST_SOURCE_BRANCH} to ${MERGE_REQUEST_TARGET_BRANCH}\"
+      \"title\": \"${MERGE_REQUEST_TITLE}\"
       }"
     - >- # https://docs.gitlab.com/ee/api/merge_requests.html#create-mr | https://curl.se/docs/manpage.html
       curl
@@ -47,6 +47,7 @@
     MERGE_REQUEST_PROJECT_ID: $CI_PROJECT_ID
     MERGE_REQUEST_SOURCE_BRANCH: $CI_COMMIT_REF_NAME
     MERGE_REQUEST_TARGET_BRANCH: $CI_DEFAULT_BRANCH
+    MERGE_REQUEST_TITLE: merge $MERGE_REQUEST_SOURCE_BRANCH to $MERGE_REQUEST_TARGET_BRANCH
 
 .gitlab get change log job:
   artifacts:
