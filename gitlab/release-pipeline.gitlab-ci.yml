@@ -19,12 +19,19 @@ create release:
   - # Create release via gitlab api
     - RELEASE_NAME="$RELEASE_PROJECT_NAME release $RELEASE_REF_NAME"
     - RELEASE_REF=${RELEASE_COMMIT_ID:-$RELEASE_REF_NAME}
-    - >-
+    #https://gitlab.gtl.net/DevOps/samples/ikva/ikva-service/-/jobs/1188992/artifacts/file/changelog
+    - |-
       REQUEST_DATA="{
-      \"description\": \"Deploying release\",
-      \"name\": \"$RELEASE_NAME\",
-      \"ref\": \"$RELEASE_REF\",
-      \"tag_name\": \"$RELEASE_TAG_NAME\"
+        \"assets\": {
+          \"links\": [
+            \"name\": \"Change Log\",
+            \"url\": \"${CI_JOB_URL}/artifacts/file/${GIT_LOG_PATH}\"
+          ]
+        },
+        \"description\": \"Deploying release\",
+        \"name\": \"$RELEASE_NAME\",
+        \"ref\": \"$RELEASE_REF\",
+        \"tag_name\": \"$RELEASE_TAG_NAME\"
       }"
     - >- # https://docs.gitlab.com/ee/api/releases/#create-a-release | https://curl.se/docs/manpage.html
       curl
