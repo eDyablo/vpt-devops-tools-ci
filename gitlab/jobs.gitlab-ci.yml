@@ -92,7 +92,7 @@
       )
   - if [ -z "$RELEASE_URL" ]; then
   - # Fetch change log
-    - !reference [.get change log job, script]
+    - !reference [.gitlab get change log job, script]
   - # Create release via gitlab api
     - RELEASE_NAME="$RELEASE_PROJECT_NAME release $RELEASE_REF_NAME"
     - RELEASE_REF=${RELEASE_COMMIT_ID:-$RELEASE_REF_NAME}
