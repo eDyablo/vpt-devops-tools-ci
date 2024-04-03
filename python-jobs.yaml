@@ -1,1 +1,1 @@
-include: python-jobs.gitlab-ci.yml
+include: python/jobs.gitlab-ci.yml
