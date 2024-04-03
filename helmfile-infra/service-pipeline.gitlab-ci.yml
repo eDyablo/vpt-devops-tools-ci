@@ -151,13 +151,9 @@ deploy environment:
     UPSTREAM_ENVIRONMENT_NAME: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}
 
 issue merge request:
-  extends: .issue merge request job
-  rules:
-  - if: $SERVICE_PIPELINE_CUSTOM_JOBS =~ /^issue merge request$/m
-    when: never
-  - !reference [.issue merge request job, rules]
+  extends: .issue merge request
 
-.issue merge request job:
+.issue merge request:
   extends: .gitlab issue merge request job
   rules:
   - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
@@ -165,3 +161,15 @@ issue merge request:
   - if: >-
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
+  stage: .post
+
+create release:
+  extends: .create release
+
+.create release:
+  extends: .gitlab create release job
+  rules:
+  - if: >-
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
+  stage: .post

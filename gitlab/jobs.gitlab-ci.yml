@@ -1,5 +1,4 @@
 .gitlab issue merge request job:
-  stage: .post
   image: ${ARTIFACTORY_URL}/dkr/devops-tools-plain-job-runner
   script:
   - # Get merge requests
