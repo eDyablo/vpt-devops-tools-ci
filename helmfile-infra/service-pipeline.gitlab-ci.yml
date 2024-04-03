@@ -71,7 +71,7 @@ production checkpoint:
     JIRA_TICKET: $JIRA_TICKET
 
 promote container image:
-  extends: .promote container image:
+  extends: .promote container image
 
 .promote container image:
   extends: .kaniko clone container image job
