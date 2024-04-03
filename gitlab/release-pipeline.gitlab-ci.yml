@@ -8,6 +8,7 @@ create release:
   script:
   - # Get release by tag name
     - >- # https://docs.gitlab.com/ee/api/releases/#get-a-release-by-a-tag-name | https://curl.se/docs/
+      RELEASE_URL=$(
       curl
       --fail-with-body
       --header "PRIVATE-TOKEN: $GITLAB_TOKEN"
@@ -15,6 +16,8 @@ create release:
       --silent
       "${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases/${RELEASE_TAG_NAME//\//%2F}"
       | jq -r '._links.self // empty'
+      )
+  - if [ -z "$RELEASE_URL" ]; then
   - # Fetch change log
     - !reference [.get change log job, script]
   - # Create release via gitlab api
@@ -37,6 +40,9 @@ create release:
       --silent
       ${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases
       | jq -r '._links.self // empty'
+  - else
+  - echo $RELEASE_URL
+  - fi
   variables:
     RELEASE_COMMIT_ID: $CI_COMMIT_SHA
     RELEASE_PROJECT_ID: $CI_PROJECT_ID
