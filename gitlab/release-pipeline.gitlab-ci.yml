@@ -7,15 +7,13 @@ create release:
   extends: .get change log job
   script:
   - # Get release by tag name
-    - >- # https://docs.gitlab.com/ee/api/releases/#get-a-release-by-a-tag-name | https://curl.se/docs/
+    - >- # https://docs.gitlab.com/ee/api/releases/#get-a-release-by-a-tag-name | https://curl.se/docs/manpage.html
       RELEASE_URL=$(
       curl
-      --fail-with-body
       --header "PRIVATE-TOKEN: $GITLAB_TOKEN"
       --request GET
       --silent
       "${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases/${RELEASE_TAG_NAME//\//%2F}"
-      || echo '{}'
       | jq -r '._links.self // empty'
       )
   - if [ -z "$RELEASE_URL" ]; then
