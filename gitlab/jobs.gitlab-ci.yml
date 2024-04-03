@@ -106,7 +106,7 @@
             \"url\": \"${CI_JOB_URL}/artifacts/file/${GIT_LOG_PATH}\"
           }]
         },
-        \"description\": \"Deploying release\",
+        ${RELEASE_DESCRIPTION:+\"description\": \"$RELEASE_DESCRIPTION\",}
         \"name\": \"$RELEASE_NAME\",
         \"ref\": \"$RELEASE_REF\",
         \"tag_name\": \"$RELEASE_TAG_NAME\"
