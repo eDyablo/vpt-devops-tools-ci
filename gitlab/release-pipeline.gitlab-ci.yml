@@ -23,10 +23,10 @@ create release:
     - |-
       REQUEST_DATA="{
         \"assets\": {
-          \"links\": [
+          \"links\": [{
             \"name\": \"Change Log\",
             \"url\": \"${CI_JOB_URL}/artifacts/file/${GIT_LOG_PATH}\"
-          ]
+          }]
         },
         \"description\": \"Deploying release\",
         \"name\": \"$RELEASE_NAME\",
