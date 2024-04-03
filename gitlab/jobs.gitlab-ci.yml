@@ -14,7 +14,7 @@
       MERGE_REQUEST_URLS=$(
       curl
       --fail-with-body
-      --header "PRIVATE-TOKEN:${GITLAB_TOKEN}"
+      --header "$API_AUTHENTICATION"
       --silent
       ${CI_API_V4_URL}/projects/${MERGE_REQUEST_PROJECT_ID}/merge_requests?state=opened
       | jq -r "$MERGE_REQUEST_URL_QUERY"
@@ -35,7 +35,7 @@
       --data "$CURL_DATA"
       --fail-with-body
       --header "Content-Type: application/json"
-      --header "PRIVATE-TOKEN:${GITLAB_TOKEN}"
+      --header "$API_AUTHENTICATION"
       --request POST
       --silent
       ${CI_API_V4_URL}/projects/${MERGE_REQUEST_PROJECT_ID}/merge_requests
@@ -44,6 +44,7 @@
     - echo "$MERGE_REQUEST_URLS"
     - fi
   variables:
+    API_AUTHENTICATION: 'PRIVATE-TOKEN: $GITLAB_TOKEN'
     MERGE_REQUEST_PROJECT_ID: $CI_PROJECT_ID
     MERGE_REQUEST_SOURCE_BRANCH: $CI_COMMIT_REF_NAME
     MERGE_REQUEST_TARGET_BRANCH: $CI_DEFAULT_BRANCH
@@ -76,3 +77,57 @@
     GIT_LOG_PATH: changelog
     GIT_SECOND_REF: origin/${CI_COMMIT_REF_NAME}
     GIT_STRATEGY: fetch
+
+.create release job:
+  extends: .get change log job
+  script:
+  - # Get release by tag name
+    - >- # https://docs.gitlab.com/ee/api/releases/#get-a-release-by-a-tag-name | https://curl.se/docs/manpage.html
+      RELEASE_URL=$(
+      curl
+      --header "$API_AUTHENTICATION"
+      --request GET
+      --silent
+      "${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases/${RELEASE_TAG_NAME//\//%2F}"
+      | jq -r '._links.self // empty'
+      )
+  - if [ -z "$RELEASE_URL" ]; then
+  - # Fetch change log
+    - !reference [.get change log job, script]
+  - # Create release via gitlab api
+    - RELEASE_NAME="$RELEASE_PROJECT_NAME release $RELEASE_REF_NAME"
+    - RELEASE_REF=${RELEASE_COMMIT_ID:-$RELEASE_REF_NAME}
+    #https://gitlab.gtl.net/DevOps/samples/ikva/ikva-service/-/jobs/1188992/artifacts/file/changelog
+    - |-
+      REQUEST_DATA="{
+        \"assets\": {
+          \"links\": [{
+            \"name\": \"Change Log\",
+            \"url\": \"${CI_JOB_URL}/artifacts/file/${GIT_LOG_PATH}\"
+          }]
+        },
+        \"description\": \"Deploying release\",
+        \"name\": \"$RELEASE_NAME\",
+        \"ref\": \"$RELEASE_REF\",
+        \"tag_name\": \"$RELEASE_TAG_NAME\"
+      }"
+    - >- # https://docs.gitlab.com/ee/api/releases/#create-a-release | https://curl.se/docs/manpage.html
+      curl
+      --data "$REQUEST_DATA"
+      --fail-with-body
+      --header 'Content-Type: application/json'
+      --header "$API_AUTHENTICATION"
+      --request POST
+      --silent
+      ${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases
+      | jq -r '._links.self // empty'
+  - else
+  - echo $RELEASE_URL
+  - fi
+  variables:
+    API_AUTHENTICATION: 'JOB-TOKEN: $CI_JOB_TOKEN'
+    RELEASE_COMMIT_ID: $CI_COMMIT_SHA
+    RELEASE_PROJECT_ID: $CI_PROJECT_ID
+    RELEASE_PROJECT_NAME: $CI_PROJECT_NAME
+    RELEASE_REF_NAME: $CI_COMMIT_REF_NAME
+    RELEASE_TAG_NAME: release/${CI_COMMIT_REF_NAME}.${CI_PIPELINE_ID}
