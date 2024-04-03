@@ -1,5 +1,5 @@
 include:
-- container-image-jobs.yaml
+- container-image-jobs.gitlab-ci.yml
 - gitlab/jobs.gitlab-ci.yml
 
 variables:
@@ -13,7 +13,6 @@ variables:
   PIPELINE_ACTION_DEFAULT_RUN: Default run
   PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION: Deploy release to production
   RELEASE_TAG_PATTERN: /^release\/.+$/
-  SERVICE_PIPELINE_CUSTOM_JOBS: none
   # UI
   PIPELINE_ACTION:
     description: 'Default run | Deploy release to production'
@@ -34,46 +33,6 @@ workflow:
   - !reference [.service pipeline, workflow rules]
   - when: always
 
-build container image:
-  extends: .build container image
-
-.build container image:
-  extends: .kaniko build container image job
-  rules:
-  - if: >-
-      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
-    when: never
-
-production checkpoint:
-  rules:
-  - if: >-
-      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $JIRA_TICKET =~ $JIRA_TICKET_PRODUCTION_PATTERN
-  stage: .pre
-  trigger:
-    project: devops-private/production-deployment-gate
-    strategy: depend
-  variables:
-    JIRA_TICKET: $JIRA_TICKET
-
-promote container image:
-  extends: .promote container image job
-  rules:
-  - if: $SERVICE_PIPELINE_CUSTOM_JOBS =~ /^promote container image$/m
-    when: never
-  - !reference [.promote container image job, rules]
-
-deploy environment:
-  extends: .deploy environment job
-  rules:
-  - if: $SERVICE_PIPELINE_CUSTOM_JOBS =~ /^deploy environment$/m
-    when: never
-  - !reference [.deploy environment job, rules]
-
-.deploy environment job:
-  extends: .trigger helm chart project job
-
 .service pipeline:
   workflow rules:
   - if: >-
@@ -90,7 +49,31 @@ deploy environment:
     when: never
   - !reference [.container image jobs, workflow rules]
 
-.promote container image job:
+build container image:
+  extends: .build container image
+
+.build container image:
+  extends: .kaniko build container image job
+
+production checkpoint:
+  extends: .production checkpoint
+
+.production checkpoint:
+  rules:
+  - if: >-
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      && $JIRA_TICKET =~ $JIRA_TICKET_PRODUCTION_PATTERN
+  stage: .pre
+  trigger:
+    project: devops-private/production-deployment-gate
+    strategy: depend
+  variables:
+    JIRA_TICKET: $JIRA_TICKET
+
+promote container image:
+  extends: .promote container image:
+
+.promote container image:
   extends: .kaniko clone container image job
   rules:
   - if: >-
@@ -104,7 +87,10 @@ deploy environment:
     CONTAINER_IMAGE_REGISTRY: ${ARTIFACTORY_URL}/dkr-production
     GIT_STRATEGY: none
 
-.trigger helm chart project job:
+deploy environment:
+  extends: .deploy environment
+
+.deploy environment:
   rules:
   - if: $CI_COMMIT_REF_NAME =~ $QA_BRANCH_NAME_PATTERN
     variables:
