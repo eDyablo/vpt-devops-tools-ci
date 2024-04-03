@@ -1,1 +1,1 @@
-include: container-image-jobs.gitlab-ci.yml
+include: container-image/jobs.gitlab-ci.yml
