@@ -21,6 +21,7 @@ create release:
     - >- # https://docs.gitlab.com/ee/api/releases/#create-a-release | https://curl.se/docs/manpage.html
       curl
       --data "$REQUEST_DATA"
+      --fail
       --fail-with-body
       --header 'Content-Type: application/json'
       --header "PRIVATE-TOKEN: $GITLAB_TOKEN"
