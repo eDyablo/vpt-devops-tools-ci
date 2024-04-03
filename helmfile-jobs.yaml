@@ -1,1 +1,1 @@
-include: helmfile-jobs.gitlab-ci.yml
+include: helmfile/jobs.gitlab-ci.yml
