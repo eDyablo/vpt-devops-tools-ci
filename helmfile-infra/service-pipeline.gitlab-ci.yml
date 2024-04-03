@@ -49,14 +49,6 @@ workflow:
     when: never
   - !reference [.container image jobs, workflow rules]
 
-build container image:
-  extends: .build container image
-
-.build container image:
-  extends: .kaniko build container image job
-  rules:
-  - when: on_success
-
 production checkpoint:
   extends: .production checkpoint
 
@@ -71,6 +63,16 @@ production checkpoint:
     strategy: depend
   variables:
     JIRA_TICKET: $JIRA_TICKET
+
+build container image:
+  extends: .build container image
+
+.build container image:
+  extends: .kaniko build container image job
+  rules:
+  - if: >-
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
 
 promote container image:
   extends: .promote container image
