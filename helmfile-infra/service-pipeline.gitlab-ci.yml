@@ -35,12 +35,15 @@ workflow:
   - when: always
 
 build container image:
-  extends: .build container image job
+  extends: .build container image
+
+.build container image:
+  extends: .kaniko build container image job
   rules:
-  - if: $SERVICE_PIPELINE_CUSTOM_JOBS =~ /^build container image$/m
+  - if: >-
+      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
     when: never
-  - !reference [.build container image job, rules]
-  - when: on_success
 
 production checkpoint:
   rules:
@@ -86,14 +89,6 @@ deploy environment:
       && $JIRA_TICKET !~ $JIRA_TICKET_PRODUCTION_PATTERN
     when: never
   - !reference [.container image jobs, workflow rules]
-
-.build container image job:
-  extends: .kaniko build container image job
-  rules:
-  - if: >-
-      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
-    when: never
 
 .promote container image job:
   extends: .kaniko clone container image job
