@@ -1,4 +1,4 @@
-include: container-image/jobs.yaml
+include: container-image/jobs.gitlab-ci.yml
 
 build container image:
   extends: .build container image
