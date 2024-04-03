@@ -73,6 +73,7 @@ build container image:
   - if: >-
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
       && $CI_COMMIT_REF_NAME =~ $RELEASE_BRANCH_NAME_PATTERN
+    when: never
 
 promote container image:
   extends: .promote container image
