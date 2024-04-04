@@ -45,4 +45,4 @@ test helmfile infra pipeline:
   trigger:
     branch: release/0.0.0
     project: devops/samples/ikva/ikva-service
-    streategy: depend
+    strategy: depend
