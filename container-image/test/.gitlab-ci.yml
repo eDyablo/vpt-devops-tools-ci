@@ -3,6 +3,7 @@ test:
     matrix:
     - PROJECT_BRANCH:
       - develop
+      - main
       - qa
   trigger:
     branch: $PROJECT_BRANCH
