@@ -7,7 +7,7 @@ test container image jobs:
     - .gitlab-ci.yml
     - container-image/**/*
   trigger:
-    project: devops/samples/utilaj
+    include: container-image/test/.gitlab-ci.yml
     strategy: depend
 
 test helm jobs:

@@ -1,0 +1,4 @@
+test:
+  trigger:
+    project: devops/samples/utilaj
+    strategy: depend
