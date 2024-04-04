@@ -56,7 +56,7 @@ variables:
       - else
       - # Build container image tag for development branch
         - CONTAINER_IMAGE_TAG="${CI_COMMIT_REF_SLUG}"
-        - list_append CONTAINER_IMAGE_LABELS com.jfrog.artifactory.retention.maxDays=7
+        - list_append CONTAINER_IMAGE_LABELS com.jfrog.artifactory.retention.maxDays=30
       - fi
     - fi
     - CONTAINER_IMAGE_NAME="${CONTAINER_IMAGE_REPOSITORY}${CONTAINER_IMAGE_TAG:+:${CONTAINER_IMAGE_TAG}}"
