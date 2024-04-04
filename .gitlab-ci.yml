@@ -36,3 +36,13 @@ test terragrunt jobs:
   trigger:
     project: devops/samples/ovaz
     strategy: depend
+
+test helmfile infra pipeline:
+  rules:
+  - changes:
+    - .gitlab-ci.yml
+    - helmfile-infra/**/*
+  trigger:
+    branch: release/0.0.0
+    project: devops/samples/ikva/ikva-service
+    streategy: depend
