@@ -5,16 +5,16 @@ test container image jobs:
   rules:
   - changes:
     - .gitlab-ci.yml
-    - container-image-jobs.yaml
+    - container-image/**/*
   trigger:
-    strategy: depend
     project: devops/samples/utilaj
+    strategy: depend
 
 test helm jobs:
   rules:
   - changes:
     - .gitlab-ci.yml
-    - helm-jobs.yaml
+    - helm/**/*
   trigger:
     project: devops/samples/tysa
     strategy: depend
@@ -23,11 +23,10 @@ test helmfile jobs:
   rules:
   - changes:
     - .gitlab-ci.yml
-    - helmfile-jobs.yaml
-    - helmfile.yaml
+    - helmfile/**/*
   trigger:
-    strategy: depend
     project: devops/samples/moon
+    strategy: depend
 
 test terragrunt jobs:
   rules:
@@ -35,5 +34,5 @@ test terragrunt jobs:
     - .gitlab-ci.yml
     - terragrunt-jobs.yaml
   trigger:
-    strategy: depend
     project: devops/samples/ovaz
+    strategy: depend
