@@ -1,4 +1,10 @@
 test:
+  parallel:
+    matrix:
+    - PROJECT_BRANCH:
+      - develop
+      - qa
   trigger:
+    branch: $PROJECT_BRANCH
     project: devops/samples/utilaj
     strategy: depend
