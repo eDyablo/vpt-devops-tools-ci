@@ -14,6 +14,7 @@ deploy environment:
   - !reference [.deploy helmfile job, before_script]
   - if [ "$ENVIRONMENT_NAME" == "$ENVIRONMENT_NAME_PRODUCTION" ]
   - # When environment is production...
+    - echo -n
   - fi
   after_script:
   - !reference [.deploy helmfile job, after_script]
