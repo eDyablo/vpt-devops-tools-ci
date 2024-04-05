@@ -12,13 +12,13 @@ deploy environment:
     on_stop: remove environment
   before_script:
   - !reference [.deploy helmfile job, before_script]
-  - if [ "$ENVIRONMENT_NAME" == "$ENVIRONMENT_NAME_PRODUCTION" ]; then
+  - if [ "$HELMFILE_ENVIRONMENT" == "$ENVIRONMENT_NAME_PRODUCTION" ]; then
   - # When environment is production...
     - echo Notify Teams Channel about start of deployment
   - fi
   after_script:
   - !reference [.deploy helmfile job, after_script]
-  - if [ "$ENVIRONMENT_NAME" == "$ENVIRONMENT_NAME_PRODUCTION" ]; then
+  - if [ "$HELMFILE_ENVIRONMENT" == "$ENVIRONMENT_NAME_PRODUCTION" ]; then
   - # When environment is production...
     - if [ "$CI_JOB_STATUS" == 'failed' ]; then
     -
