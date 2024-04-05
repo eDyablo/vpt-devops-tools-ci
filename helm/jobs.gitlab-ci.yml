@@ -1,4 +1,5 @@
-include: generic/variables.gitlab-ci.yml
+include:
+- generic/variables.gitlab-ci.yml
 
 variables:
   HELM_CHART_PATH: .
