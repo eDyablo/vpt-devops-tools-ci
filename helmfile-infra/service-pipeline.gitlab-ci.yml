@@ -142,6 +142,9 @@ deploy environment:
 
 issue merge request:
   extends: .issue merge request
+  rules:
+  - !reference [.issue merge request, rules]
+  - when: on_success
 
 .issue merge request:
   extends: .gitlab issue merge request job
@@ -149,8 +152,9 @@ issue merge request:
   - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     when: never
   - if: >-
-      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $CI_COMMIT_REF_NAME =~ $BRANCH_NAME_PATTERN_RELEASE
+      $PIPELINE_ACTION != $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      || $CI_COMMIT_REF_NAME !~ $BRANCH_NAME_PATTERN_RELEASE
+    when: never
   stage: .post
   variables:
     MERGE_REQUEST_TITLE: >-
@@ -159,11 +163,15 @@ issue merge request:
 
 create release:
   extends: .create release
+  rules:
+  - !reference [.create release, rules]
+  - when: on_success
 
 .create release:
   extends: .gitlab create release job
   rules:
   - if: >-
-      $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $CI_COMMIT_REF_NAME =~ $BRANCH_NAME_PATTERN_RELEASE
+      $PIPELINE_ACTION != $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
+      || $CI_COMMIT_REF_NAME !~ $BRANCH_NAME_PATTERN_RELEASE
+    when: never
   stage: .post
