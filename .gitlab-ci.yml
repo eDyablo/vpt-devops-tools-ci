@@ -6,6 +6,7 @@ test container image jobs:
   - changes:
     - .gitlab-ci.yml
     - container-image/**/*
+    - generic/**/*
   trigger:
     include: container-image/test/.gitlab-ci.yml
     strategy: depend
@@ -14,6 +15,7 @@ test helm jobs:
   rules:
   - changes:
     - .gitlab-ci.yml
+    - generic/**/*
     - helm/**/*
   trigger:
     project: devops/samples/tysa
@@ -23,6 +25,7 @@ test helmfile jobs:
   rules:
   - changes:
     - .gitlab-ci.yml
+    - generic/**/*
     - helmfile/**/*
   trigger:
     project: devops/samples/moon
@@ -32,6 +35,7 @@ test terragrunt jobs:
   rules:
   - changes:
     - .gitlab-ci.yml
+    - generic/**/*
     - terragrunt-jobs.yaml
   trigger:
     project: devops/samples/ovaz
@@ -41,6 +45,7 @@ test helmfile infra pipeline:
   rules:
   - changes:
     - .gitlab-ci.yml
+    - generic/**/*
     - helmfile-infra/**/*
   trigger:
     branch: release/0.0.0
