@@ -2,14 +2,9 @@ include:
 - container-image/jobs.gitlab-ci.yml
 - generic/variables.gitlab-ci.yml
 - gitlab/jobs.gitlab-ci.yml
+- helmfile-infra/variables.gitlab-ci.yml
 
 variables:
-  ENVIRONMENT_NAME_DEVELOPMENT: dev
-  ENVIRONMENT_NAME_PRODUCTION: production
-  ENVIRONMENT_NAME_QA: qa
-  ENVIRONMENT_NAME_RELEASE: release
-  ENVIRONMENT_NAME_STAGING: staging
-  ENVIRONMENT_NAME_TESTING: testing
   JIRA_TICKET_PRODUCTION_PATTERN: /^DEPX-[0-9]{3,5}$/
   PIPELINE_ACTION_DEFAULT_RUN: Default run
   PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION: Deploy release to production
