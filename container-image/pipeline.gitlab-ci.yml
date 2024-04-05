@@ -9,7 +9,7 @@ variables:
     options:
     - Run
     - Promote release to production
-    value: Default run
+    value: Run
   JIRA_TICKET:
     description: Reference ticket. Required for release promotion.
     value: ''
