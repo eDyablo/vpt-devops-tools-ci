@@ -33,19 +33,19 @@ variables:
       dotenv: deploy.env
     when: always
   script:
-  - |- # list releases defined in state file
+  - |- # List releases defined in state file
     helmfile list \
     --skip-charts \
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
     ${DEPLOYMENT_SELECTORS:=$(for deployment_name in $SELECT_DEPLOYMENT; do \
       ${deployment_name:+echo --selector=deployment=${deployment_name}}; done)} \
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
-  - >- # lint charts from state file
+  - >- # Lint charts from state file
     helmfile lint
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $DEPLOYMENT_SELECTORS
-  - |- # apply all resources from state file only when there are changes
+  - |- # Apply all resources from state file only when there are changes
     deployments=$(
       helmfile list \
         --allow-no-matching-release \
@@ -75,13 +75,13 @@ variables:
       fi
     done
     [ $pcode -eq 0 ] || exit $pcode
-  - >- # test charts from state file
+  - >- # Test charts from state file
     helmfile test
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $DEPLOYMENT_SELECTORS
   after_script:
-  - |- # write envs
+  - |- # Write envs
     (
       echo "DEPLOYMENT_NAME_PREFIX=${DEPLOYMENT_NAME_PREFIX}"
       echo "DEPLOYMENT_NAME_SUFFIX=${DEPLOYMENT_NAME_SUFFIX}"
@@ -134,13 +134,13 @@ variables:
   - fi
   - !reference [.helmfile job, before_script]
   script:
-  - > # list releases defined in state file
+  - >- # List releases defined in state file
     helmfile list
     --skip-charts
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $HELMFILE_SELECTORS
-  - > # destroy and then purge releases
+  - >- # Destroy and then purge releases
     helmfile destroy
     --skip-charts
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
