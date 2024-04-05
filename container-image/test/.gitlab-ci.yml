@@ -5,6 +5,7 @@ test:
       - develop
       - main
       - qa
+      - release/0.0.0
   trigger:
     branch: $PROJECT_BRANCH
     project: devops/samples/utilaj
