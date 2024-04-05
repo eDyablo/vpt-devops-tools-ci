@@ -77,6 +77,9 @@ build container image:
 
 promote container image:
   extends: .promote container image
+  rules:
+  - !reference [.promote container image, rules]
+  - when: on_success
 
 .promote container image:
   extends: .kaniko clone container image job
