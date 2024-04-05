@@ -1,5 +1,5 @@
 variables:
   BRANCH_NAME_PATTERN_QA: /^qa$/
   BRANCH_NAME_PATTERN_RELEASE: /^release\/(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}$/
-  PRODUCTION_TAG_PATTERN: /^v(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}$/
-  VERSION_TAG_PATTERN: /^v(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}($|-[0-9a-zA-Z-]+$)/
+  TAG_PATTERN_VERSION_PRODUCTION: /^v(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}$/
+  TAG_PATTERN_VERSION: /^v(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){2}($|-[0-9a-zA-Z-]+$)/
