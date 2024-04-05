@@ -6,9 +6,9 @@ variables:
   image: ${ARTIFACTORY_URL}/dkr/devops-tools-helmfile-job-runner
   before_script:
   - export $(echo "$HELMFILE_ENVS" | xargs)
-  - > # Set environment variables
+  - >- # Set environment variables
     HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT:-$CI_ENVIRONMENT_SLUG}
-  - > # Render helmfile values file
+  - >- # Render helmfile values file
     [ $HELMFILE_VALUES_FILE_SRC ]
     && ([ -f "$HELMFILE_VALUES_FILE_SRC" ]
     && eval "echo \"$(cat $HELMFILE_VALUES_FILE_SRC)\""
@@ -33,19 +33,19 @@ variables:
       dotenv: deploy.env
     when: always
   script:
-  - | # list releases defined in state file
+  - |- # list releases defined in state file
     helmfile list \
     --skip-charts \
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
     ${DEPLOYMENT_SELECTORS:=$(for deployment_name in $SELECT_DEPLOYMENT; do \
       ${deployment_name:+echo --selector=deployment=${deployment_name}}; done)} \
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
-  - > # lint charts from state file
+  - >- # lint charts from state file
     helmfile lint
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $DEPLOYMENT_SELECTORS
-  - | # apply all resources from state file only when there are changes
+  - |- # apply all resources from state file only when there are changes
     deployments=$(
       helmfile list \
         --allow-no-matching-release \
@@ -75,42 +75,46 @@ variables:
       fi
     done
     [ $pcode -eq 0 ] || exit $pcode
-  - > # test charts from state file
+  - >- # test charts from state file
     helmfile test
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $DEPLOYMENT_SELECTORS
   after_script:
-  - | # write envs
+  - |- # write envs
     (
       echo "DEPLOYMENT_NAME_PREFIX=${DEPLOYMENT_NAME_PREFIX}"
       echo "DEPLOYMENT_NAME_SUFFIX=${DEPLOYMENT_NAME_SUFFIX}"
       echo "HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT}"
       echo "HELMFILE_SELECTORS='${DEPLOYMENT_SELECTORS//$'\n'/ }'"
     ) >> deploy.env
-  - | # when job is failed printout the releases pods containers logs
-    if [ "$CI_JOB_STATUS" == 'failed' ]; then
-      releases=$(helmfile list \
-        --output=json \
-        --skip-charts --skip-deps \
-        ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
-        ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE} \
-        $DEPLOYMENT_SELECTORS \
-        | jq -r '.[] | select(.installed and .enabled) | "\(.namespace)/\(.name)"'
+  - if [ "$CI_JOB_STATUS" == 'failed' ]; then
+  - # When job is failed printout the releases pods containers logs
+    - >-
+      releases=$(
+      helmfile list
+      --output=json
+      --skip-charts --skip-deps
+      ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+      ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+      $DEPLOYMENT_SELECTORS
+      | jq -r '.[] | select(.installed and .enabled) | "\(.namespace)/\(.name)"'
       )
-      for release in $releases; do
-        release_name=${release#*\/}
-        release_namespace=${release%\/*}
-        kubectl \
-          --namespace=$release_namespace \
-          logs \
-          --all-containers=true \
-          --prefix=true \
-          --selector="app.kubernetes.io/instance=$release_name" \
-          --tail=-1 \
-          --timestamps=true
-      done
-    fi
+    - for release in $releases; do
+    - # Print release logs
+      - release_name=${release#*\/}
+      - release_namespace=${release%\/*}
+      - >-
+        kubectl
+        --namespace=$release_namespace
+        logs
+        --all-containers=true
+        --prefix=true
+        --selector="app.kubernetes.io/instance=$release_name"
+        --tail=-1
+        --timestamps=true
+    - done
+  - fi
 
 .destroy helmfile job:
   extends: .helmfile job
