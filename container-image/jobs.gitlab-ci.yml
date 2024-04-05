@@ -1,4 +1,6 @@
-include: generic/variables.gitlab-ci.yml
+include:
+- container-image/variables.gitlab-ci.yml
+- generic/variables.gitlab-ci.yml
 
 variables:
   KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.22.0-debug
