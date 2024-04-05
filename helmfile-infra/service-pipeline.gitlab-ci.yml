@@ -6,16 +6,16 @@ include:
 
 variables:
   JIRA_TICKET_PATTERN_PRODUCTION: /^DEPX-[0-9]{3,5}$/
-  PIPELINE_ACTION_DEFAULT_RUN: Default run
+  PIPELINE_ACTION_DEFAULT_RUN: Run
   PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION: Deploy release to production
   TAG_PATTERN_RELEASE: /^release\/.+$/
   # UI
   PIPELINE_ACTION:
-    description: 'Default run | Deploy release to production'
+    description: 'Run | Deploy release to production'
     options:
-    - Default run
+    - Run
     - Deploy release to production
-    value: Default run
+    value: Run
   JIRA_TICKET:
     description: Reference ticket. Required for production deployment.
     value: ''
