@@ -126,12 +126,12 @@ variables:
   variables:
     GIT_STRATEGY: none
   before_script:
-  - | # read deploy envs
-    if [ -f deploy.env ]; then
-      set -o allexport
-      source deploy.env
-      set +o allexport
-    fi
+  - if [ -f deploy.env ]; then
+  - # Read deploy envs
+    - set -o allexport
+    - source deploy.env
+    - set +o allexport
+  - fi
   - !reference [.helmfile job, before_script]
   script:
   - > # list releases defined in state file
