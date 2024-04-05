@@ -1,4 +1,5 @@
 include:
+- helmfile-infra/variables.gitlab-ci.yml
 - helmfile/jobs.gitlab-ci.yml
 
 deploy environment:
@@ -9,6 +10,18 @@ deploy environment:
     auto_stop_in: $ENVIRONMENT_AUTOSTOP
     name: $ENVIRONMENT_NAME
     on_stop: remove environment
+  before_script:
+  - !reference [.deploy helmfile job, before_script]
+  - if [ "$ENVIRONMENT_NAME" == "$ENVIRONMENT_NAME_PRODUCTION" ]
+  - # When environment is production...
+  - fi
+  after_script:
+  - !reference [.deploy helmfile job, after_script]
+  - if [ "$ENVIRONMENT_NAME" == "$ENVIRONMENT_NAME_PRODUCTION" ]
+  - # When environment is production...
+    - if [ "$CI_JOB_STATUS" == 'failed' ]; then
+    - fi
+  - fi
 
 remove environment:
   extends: .destroy helmfile job
