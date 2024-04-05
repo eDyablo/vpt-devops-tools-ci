@@ -5,7 +5,7 @@ include:
 - helmfile-infra/variables.gitlab-ci.yml
 
 variables:
-  JIRA_TICKET_PRODUCTION_PATTERN: /^DEPX-[0-9]{3,5}$/
+  JIRA_TICKET_PATTERN_PRODUCTION: /^DEPX-[0-9]{3,5}$/
   PIPELINE_ACTION_DEFAULT_RUN: Default run
   PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION: Deploy release to production
   TAG_PATTERN_RELEASE: /^release\/.+$/
@@ -36,7 +36,7 @@ workflow:
     when: never
   - if: >-
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $JIRA_TICKET !~ $JIRA_TICKET_PRODUCTION_PATTERN
+      && $JIRA_TICKET !~ $JIRA_TICKET_PATTERN_PRODUCTION
     when: never
   - if: $CI_COMMIT_REF_NAME && $CI_COMMIT_REF_NAME =~ $BRANCH_NAME_PATTERN_QA
     variables:
@@ -56,7 +56,7 @@ production checkpoint:
   rules:
   - if: >-
       $PIPELINE_ACTION && $PIPELINE_ACTION == $PIPELINE_ACTION_DEPLOY_RELEASE_TO_PRODUCTION
-      && $JIRA_TICKET =~ $JIRA_TICKET_PRODUCTION_PATTERN
+      && $JIRA_TICKET =~ $JIRA_TICKET_PATTERN_PRODUCTION
   stage: .pre
   trigger:
     project: devops-private/production-deployment-gate
