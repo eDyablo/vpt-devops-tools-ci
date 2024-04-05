@@ -1,5 +1,6 @@
-include: container-image/jobs.gitlab-ci.yml
-include: generic/variables.gitlab-ci.yml
+include:
+- container-image/jobs.gitlab-ci.yml
+- generic/variables.gitlab-ci.yml
 
 variables:
   PIPELINE_ACTION_RUN: Default run
