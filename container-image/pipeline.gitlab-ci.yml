@@ -1,5 +1,19 @@
 include: container-image/jobs.gitlab-ci.yml
 
+variables:
+  PIPELINE_ACTION_RUN: Default run
+  PIPELINE_ACTION_PROMOTE_RELEASE_TO_PRODUCTION: Promote release to production
+  # UI
+  PIPELINE_ACTION:
+    description: 'Run | Promote release to production'
+    options:
+    - Run
+    - Promote release to production
+    value: Default run
+  JIRA_TICKET:
+    description: Reference ticket. Required for release promotion.
+    value: ''
+
 workflow:
   rules:
   - if: $CI_COMMIT_REF_NAME && $CI_COMMIT_REF_NAME =~ $BRANCH_NAME_PATTERN_QA
