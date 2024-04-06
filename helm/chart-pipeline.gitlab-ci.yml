@@ -9,13 +9,15 @@ stages:
 
 lint chart:
   extends: .lint chart
+  rules:
+  - !reference [.lint chart]
+  - when: on_success
 
 .lint chart:
   extends: .lint chart job
   rules:
   - if: $CI_PIPELINE_SOURCE == 'pipeline'
     when: never
-  - when: on_success
   stage: .pre
 
 package chart:
