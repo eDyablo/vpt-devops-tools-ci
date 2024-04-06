@@ -4,6 +4,9 @@ include:
 - file: teams-notification.yml
   project: devops/gitlab-ci-common
 
+variables:
+  TICKET_STATUS: Release Approved
+
 deploy environment:
   extends: .deploy helmfile job
   tags:
