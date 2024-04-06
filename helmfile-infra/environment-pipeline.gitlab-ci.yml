@@ -1,6 +1,8 @@
 include:
 - helmfile-infra/variables.gitlab-ci.yml
 - helmfile/jobs.gitlab-ci.yml
+- file: teams-notification.yml
+  project: devops/gitlab-ci-common
 
 deploy environment:
   extends: .deploy helmfile job
