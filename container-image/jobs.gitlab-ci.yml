@@ -30,12 +30,15 @@ variables:
   - # Set container image related variables
     - CONTAINER_IMAGE_BASE_NAME=${CONTAINER_IMAGE_BASE_NAME:-$CI_PROJECT_PATH_SLUG}
     - CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
-    - if [ ! ${CONTAINER_IMAGE_TAG} ]; then
+    - if [ ! ${CONTAINER_IMAGE_TAG} ];
+    - then
     - # Build container image tag if it is not defined yet
-      - if [[ "${CI_COMMIT_REF_NAME}" == "${CI_DEFAULT_BRANCH}" ]]; then
+      - if [[ "${CI_COMMIT_REF_NAME}" == "${CI_DEFAULT_BRANCH}" ]];
+      - then
       - # Build container image tag for default branch
         - CONTAINER_IMAGE_TAG=""
-      - elif echo $CI_COMMIT_TAG | grep -Eq $TAG_PATTERN_VERSION; then
+      - elif echo $CI_COMMIT_TAG | grep -Eq $TAG_PATTERN_VERSION;
+      - then
       - # Build container image tag for versioned tag branch
         - CONTAINER_IMAGE_TAG=${CI_COMMIT_TAG#v}
       - else
