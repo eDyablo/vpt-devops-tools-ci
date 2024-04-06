@@ -18,8 +18,7 @@
       ${CI_API_V4_URL}/projects/${MERGE_REQUEST_PROJECT_ID}/merge_requests?state=opened
       | jq -r "$MERGE_REQUEST_URL_QUERY"
       )
-  - if [ -z "$MERGE_REQUEST_URLS" ]
-  - then
+  - if [ -z "$MERGE_REQUEST_URLS" ]; then
   - # Create merge request if not exists yet
     - |- # https://www.json.org
       CURL_DATA="{
@@ -93,8 +92,7 @@
       "${CI_API_V4_URL}/projects/${RELEASE_PROJECT_ID}/releases/${RELEASE_TAG_NAME//\//%2F}"
       | jq -r '._links.self // empty'
       )
-  - if [ -z "$RELEASE_URL" ]
-  - then
+  - if [ -z "$RELEASE_URL" ]; then
   - # Create release when it does not exist yet
     - # Fetch change log
       - !reference [.gitlab get change log job, script]
