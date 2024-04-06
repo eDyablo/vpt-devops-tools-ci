@@ -10,7 +10,7 @@ stages:
 lint chart:
   extends: .lint chart
   rules:
-  - !reference [.lint chart]
+  - !reference [.lint chart, rules]
   - when: on_success
 
 .lint chart:
