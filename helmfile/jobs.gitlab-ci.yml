@@ -71,7 +71,8 @@ variables:
     done
     pcode=0
     for pid in $pids; do
-      if ! wait $pid; then
+      if ! wait $pid
+      then
         pcode=$((pcode + 1))
       fi
     done
@@ -89,32 +90,33 @@ variables:
       echo "HELMFILE_ENVIRONMENT=${HELMFILE_ENVIRONMENT}"
       echo "HELMFILE_SELECTORS='${DEPLOYMENT_SELECTORS//$'\n'/ }'"
     ) >> deploy.env
-  - if [ "$CI_JOB_STATUS" == 'failed' ]; then
-  - # When job is failed printout the releases pods containers logs
-    - >-
-      releases=$(
-      helmfile list
-      --output=json
-      --skip-charts --skip-deps
-      ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
-      ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
-      $DEPLOYMENT_SELECTORS
-      | jq -r '.[] | select(.installed and .enabled) | "\(.namespace)/\(.name)"'
-      )
-    - for release in $releases; do
-    - # Print release logs
-      - release_name=${release#*\/}
-      - release_namespace=${release%\/*}
+  - if [ "$CI_JOB_STATUS" == 'failed' ]
+  - then
+    - # When job is failed printout the releases pods containers logs
       - >-
-        kubectl
-        --namespace=$release_namespace
-        logs
-        --all-containers=true
-        --prefix=true
-        --selector="app.kubernetes.io/instance=$release_name"
-        --tail=-1
-        --timestamps=true
-    - done
+        releases=$(
+        helmfile list
+        --output=json
+        --skip-charts --skip-deps
+        ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+        ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+        $DEPLOYMENT_SELECTORS
+        | jq -r '.[] | select(.installed and .enabled) | "\(.namespace)/\(.name)"'
+        )
+      - for release in $releases; do
+      - # Print release logs
+        - release_name=${release#*\/}
+        - release_namespace=${release%\/*}
+        - >-
+          kubectl
+          --namespace=$release_namespace
+          logs
+          --all-containers=true
+          --prefix=true
+          --selector="app.kubernetes.io/instance=$release_name"
+          --tail=-1
+          --timestamps=true
+      - done
   - fi
 
 .destroy helmfile job:
@@ -127,7 +129,8 @@ variables:
   variables:
     GIT_STRATEGY: none
   before_script:
-  - if [ -f deploy.env ]; then
+  - if [ -f deploy.env ]
+  - then
   - # Read deploy envs
     - set -o allexport
     - source deploy.env
