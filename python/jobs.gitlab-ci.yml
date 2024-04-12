@@ -15,3 +15,14 @@
     - dist
   script:
   - python -m build
+
+.python twine upload job:
+  extends: .python job
+  stage: deploy
+  script:
+  - >-
+    python -m twine
+    upload dist/*
+    --non-interactive
+  variables:
+    TWINE_REPOSITORY_URL: https://artifactory.gtl.net/artifactory/api/pypi/pypi-local

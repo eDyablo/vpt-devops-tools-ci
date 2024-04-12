@@ -3,3 +3,6 @@ include:
 
 build package:
   extends: .python build job
+
+publish package:
+  extends: .python twine upload job
