@@ -51,3 +51,13 @@ test helmfile infra pipeline:
     branch: release/0.0.0
     project: devops/samples/ikva/ikva-service
     strategy: depend
+
+test python jobs:
+  rules:
+  - changes:
+    - .gitlab-ci.yml
+    - generic/**/*
+    - python/**/*
+  trigger:
+    project: devops/samples/psel
+    strategy: depend
