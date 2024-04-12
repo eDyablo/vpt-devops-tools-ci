@@ -1,0 +1,5 @@
+include:
+- python/jobs.gitlab-ci.yml
+
+build package:
+  extends: .python build job

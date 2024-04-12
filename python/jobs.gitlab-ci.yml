@@ -1,5 +1,17 @@
-.pytest job:
-  stage: test
+.python job:
   image: ${ARTIFACTORY_URL}/dkr/devops-tools-python-job-runner
+
+.pytest job:
+  extends: .python job
+  stage: test
   script:
   - pytest
+
+.python build job:
+  extends: .python job
+  stage: build
+  artifacts:
+    paths:
+    - dist
+  script:
+  - python -m build
