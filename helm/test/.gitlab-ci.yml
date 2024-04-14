@@ -1,0 +1,9 @@
+test:
+  parallel:
+    matrix:
+    - PROJECT_BRANCH:
+      - main
+  trigger:
+    branch: $PROJECT_BRANCH
+    project: devops/samples/tysa
+    strategy: depend
