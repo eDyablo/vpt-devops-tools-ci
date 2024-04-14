@@ -63,7 +63,7 @@ variables:
   - # Build and publish container image
     - >-
       KANIKO_CMD_BUILD_ARGS=$(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read BUILD_ARG; do
-      ([ "$BUILD_ARG" ]) && echo "--build-arg=${BUILD_ARG}"; done)
+      echo "${BUILD_ARG:+--build-arg=$BUILD_ARG}"; done)
     - >-
       KANINKO_CMD_LABELS=$(for LABEL in ${CONTAINER_IMAGE_LABELS}; do
       echo "--label=${LABEL}"; done)
