@@ -15,7 +15,7 @@ variables:
     KANIKO_EXECUTOR: /kaniko/executor
   artifacts:
     reports:
-      dotenv: build-container-image.env
+      dotenv: ${CI_JOB_NAME_SLUG}.env
   script:
   - # Declare functions
     - |-
@@ -52,23 +52,31 @@ variables:
       "org.opencontainers.image.source=${CI_PROJECT_URL}"
       "org.opencontainers.image.vendor=ViaPath"
       "org.opencontainers.image.version=${CI_COMMIT_TAG:-g${CI_COMMIT_SHORT_SHA}}"
-  - >- # Authorize to container image registry
-    echo
-    "{\"auths\":{\"${CONTAINER_IMAGE_REGISTRY/\/*}\":{\"auth\":\"$(echo -n ${CONTAINER_IMAGE_REGISTRY_USER}:${CONTAINER_IMAGE_REGISTRY_PASSWORD} | base64)\"}}}"
-    > /kaniko/.docker/config.json
-  - >- # Build and publish container image
-    ${KANIKO_EXECUTOR}
-    ${CONTAINER_IMAGE_NAME:+--destination=${CONTAINER_IMAGE_NAME}}
-    ${DOCKERFILE_CONTEXT:+--context=${DOCKERFILE_CONTEXT}}
-    ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME}}
-    $(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read build_arg; do [ "$build_arg" ] && echo "--build-arg=${build_arg}"; done)
-    $(for label in ${CONTAINER_IMAGE_LABELS}; do echo --label=${label}; done)
-  - |- # Store variables into artifact to pass them to further jobs
-    (
-      echo CONTAINER_IMAGE_NAME=$CONTAINER_IMAGE_NAME
-      echo CONTAINER_IMAGE_REPOSITORY=$CONTAINER_IMAGE_REPOSITORY
-      echo CONTAINER_IMAGE_TAG=$CONTAINER_IMAGE_TAG
-    ) >> build-container-image.env
+  - # Authorize to container image registry
+    - >-
+      CONTAINER_IMAGE_REGISTRY_AUTH=$(echo -n
+      ${CONTAINER_IMAGE_REGISTRY_USER}:${CONTAINER_IMAGE_REGISTRY_PASSWORD} | base64)
+    - >-
+      echo
+      "{\"auths\":{\"${CONTAINER_IMAGE_REGISTRY/\/*}\":{\"auth\":\"${CONTAINER_IMAGE_REGISTRY_AUTH}\"}}}"
+      > /kaniko/.docker/config.json
+  - # Build and publish container image
+    - >-
+      KANIKO_CMD_BUILD_ARGS=$(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read build_arg;
+      do [ "$build_arg" ] && echo "--build-arg=${build_arg}"; done)
+    - >-
+      KANINKO_CMD_LABELS=$(for label in ${CONTAINER_IMAGE_LABELS}; do echo --label=${label}; done)
+    - >-
+      ${KANIKO_EXECUTOR}
+      ${CONTAINER_IMAGE_NAME:+--destination=${CONTAINER_IMAGE_NAME}}
+      ${DOCKERFILE_CONTEXT:+--context=${DOCKERFILE_CONTEXT}}
+      ${DOCKERFILE_NAME:+--dockerfile=${DOCKERFILE_NAME}}
+      $KANIKO_CMD_BUILD_ARGS
+      $KANIKO_CMD_LABELS
+  - # Store variables into artifact to pass them to downstream jobs
+    - echo CONTAINER_IMAGE_NAME=$CONTAINER_IMAGE_NAME >> ${CI_JOB_NAME_SLUG}.env
+    - echo CONTAINER_IMAGE_REPOSITORY=$CONTAINER_IMAGE_REPOSITORY >> ${CI_JOB_NAME_SLUG}.env
+    - echo CONTAINER_IMAGE_TAG=$CONTAINER_IMAGE_TAG >> ${CI_JOB_NAME_SLUG}.env
 
 .kaniko clone container image job:
   extends: .kaniko build container image job
