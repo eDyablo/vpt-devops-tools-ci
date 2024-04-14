@@ -27,6 +27,7 @@ variables:
   - # Sanitize variables
     - TAG_PATTERN_VERSION=${TAG_PATTERN_VERSION#/*}
     - TAG_PATTERN_VERSION=${TAG_PATTERN_VERSION%/*}
+  - git describe --tags --abbrev=$(echo $CI_COMMIT_SHORT_SHA | wc -c | tr '[:blank:]')
   - # Set container image related variables
     - CONTAINER_IMAGE_BASE_NAME=${CONTAINER_IMAGE_BASE_NAME:-$CI_PROJECT_PATH_SLUG}
     - CONTAINER_IMAGE_REPOSITORY="${CONTAINER_IMAGE_REGISTRY}/${CONTAINER_IMAGE_BASE_NAME}"
