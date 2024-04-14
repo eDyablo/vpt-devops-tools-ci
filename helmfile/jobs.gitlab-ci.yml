@@ -46,36 +46,42 @@ variables:
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $DEPLOYMENT_SELECTORS
-  - |- # Apply all resources from state file only when there are changes
-    deployments=$(
-      helmfile list \
-        --allow-no-matching-release \
-        --output=json \
-        --skip-charts --skip-deps \
-        ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
-        ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE} \
-        $DEPLOYMENT_SELECTORS \
-      | jq -r '.[].labels | select(. | contains("deployment:")) | match("deployment:([^,]+)").captures[0].string' \
+  - # Apply all resources from state file only when there are changes
+    - >-
+      deployments=$(
+      helmfile list
+      --allow-no-matching-release
+      --output=json
+      --skip-charts --skip-deps
+      ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
+      ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+      $DEPLOYMENT_SELECTORS
+      | jq -r '.[].labels | select(. | contains("deployment:")) | match("deployment:([^,]+)").captures[0].string'
       | sort | uniq
-    )
-    deploy() {
-      helmfile apply \
-        --allow-no-matching-release \
-        --selector=deployment=$1 \
-        ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
-        ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
-    }
-    pids=
-    for deployment in $deployments; do
-      (deploy $deployment) & pids="$pids $!"
-    done
-    pcode=0
-    for pid in $pids; do
-      if ! wait $pid; then
-        pcode=$((pcode + 1))
-      fi
-    done
-    [ $pcode -eq 0 ] || exit $pcode
+      )
+    - |-
+      deploy() {
+        helmfile apply \
+          --allow-no-matching-release \
+          --selector=deployment=$1 \
+          ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT} \
+          ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
+      }
+    - pids=
+    - for deployment in $deployments; do
+    -
+      - (deploy $deployment) & pids="$pids $!"
+    - done
+    - pcode=0
+    - for pid in $pids; do
+    -
+      - if ! wait $pid; then
+      -
+        - pcode=$((pcode + 1))
+      - fi
+    - done
+    - >-
+      [ $pcode -eq 0 ] || exit $pcode
   - >- # Test charts from state file
     helmfile test
     ${HELMFILE_ENVIRONMENT:+--environment=$HELMFILE_ENVIRONMENT}
