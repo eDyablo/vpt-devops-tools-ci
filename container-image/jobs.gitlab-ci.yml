@@ -3,7 +3,7 @@ include:
 - generic/variables.gitlab-ci.yml
 
 variables:
-  KANIKO_IMAGE: ${ARTIFACTORY_URL}/dkr/devops-tools-kaniko-job-runner
+  KANIKO_IMAGE: ${ARTIFACTORY_URL}/dkr/devops-tools-kaniko-job-runner:0.1.0
 
 .kaniko build container image job:
   stage: build
