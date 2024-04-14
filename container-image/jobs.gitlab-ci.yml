@@ -62,10 +62,11 @@ variables:
       > /kaniko/.docker/config.json
   - # Build and publish container image
     - >-
-      KANIKO_CMD_BUILD_ARGS=$(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read build_arg;
-      do [ "$build_arg" ] && echo "--build-arg=${build_arg}"; done)
+      KANIKO_CMD_BUILD_ARGS=$(echo "$CONTAINER_IMAGE_BUILD_ARGS" | while read BUILD_ARG; do
+      ([ "$BUILD_ARG" ]) && echo "--build-arg=${BUILD_ARG}"; done)
     - >-
-      KANINKO_CMD_LABELS=$(for label in ${CONTAINER_IMAGE_LABELS}; do echo --label=${label}; done)
+      KANINKO_CMD_LABELS=$(for LABEL in ${CONTAINER_IMAGE_LABELS}; do
+      echo "--label=${LABEL}"; done)
     - >-
       ${KANIKO_EXECUTOR}
       ${CONTAINER_IMAGE_NAME:+--destination=${CONTAINER_IMAGE_NAME}}
