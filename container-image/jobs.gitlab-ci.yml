@@ -56,7 +56,6 @@ variables:
     - >-
       CONTAINER_IMAGE_REGISTRY_AUTH=$(echo -n
       ${CONTAINER_IMAGE_REGISTRY_USER}:${CONTAINER_IMAGE_REGISTRY_PASSWORD} | base64)
-    - mkdir -p /kaniko/.docker/
     - >-
       echo
       "{\"auths\":{\"${CONTAINER_IMAGE_REGISTRY/\/*}\":{\"auth\":\"${CONTAINER_IMAGE_REGISTRY_AUTH}\"}}}"
