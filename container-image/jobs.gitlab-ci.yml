@@ -3,7 +3,7 @@ include:
 - generic/variables.gitlab-ci.yml
 
 variables:
-  KANIKO_IMAGE: dkr.gtl.net/dkr/devops-tools-kaniko-job-runner
+  KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.22.0-debug
 
 .kaniko build container image job:
   stage: build
