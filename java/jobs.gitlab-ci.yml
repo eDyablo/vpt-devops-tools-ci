@@ -1,0 +1,32 @@
+include:
+- generic/variables.gitlab-ci.yml
+
+build jar:
+  artifacts:
+    paths:
+    - target/*.jar
+    reports:
+      dotenv: build.env
+  image: ${ARTIFACTORY_URL}/dkr/devops-tools-openjdk-job-runner
+  resource_group: $CI_COMMIT_REF_SLUG
+  stage: build
+  variables:
+    SETTINGS_PATH: .m2/settings.xml
+  script:
+  - if echo $CI_COMMIT_TAG | grep -Eq $TAG_PATTERN_VERSION; then
+  - # Define revision for version tag
+    - JAR_REVISION=${CI_COMMIT_TAG#v}
+  - else
+  - # Define revision for regular branch
+    - JAR_REVISION=$CI_COMMIT_REF_SLUG
+  - fi
+  - >-
+    mvn deploy
+    -Drevision=$JAR_REVISION
+    ${POM_PATH:+--file="$POM_PATH"}
+    ${SETTINGS_PATH:+--settings="$SETTINGS_PATH"}
+  - |-
+    (
+      echo JAR_REVISION_SLUG=$(echo -n $JAR_REVISION | tr -c '[:alnum:]' '-')
+      echo JAR_REVISION=$JAR_REVISION
+    ) >> build.env
