@@ -3,7 +3,8 @@ variables:
 
 test container image jobs:
   rules:
-  - changes:
+  - if: $CI_PIPELINE_SOURCE != 'merge_request_event'
+    changes:
     - .gitlab-ci.yml
     - container-image/**/*
     - generic/**/*
@@ -13,7 +14,8 @@ test container image jobs:
 
 test helm jobs:
   rules:
-  - changes:
+  - if: $CI_PIPELINE_SOURCE != 'merge_request_event'
+    changes:
     - .gitlab-ci.yml
     - generic/**/*
     - helm/**/*
@@ -23,7 +25,8 @@ test helm jobs:
 
 test helmfile jobs:
   rules:
-  - changes:
+  - if: $CI_PIPELINE_SOURCE != 'merge_request_event'
+    changes:
     - .gitlab-ci.yml
     - generic/**/*
     - helmfile/**/*
@@ -33,7 +36,8 @@ test helmfile jobs:
 
 test terragrunt jobs:
   rules:
-  - changes:
+  - if: $CI_PIPELINE_SOURCE != 'merge_request_event'
+    changes:
     - .gitlab-ci.yml
     - generic/**/*
     - terragrunt-jobs.yaml
@@ -44,7 +48,8 @@ test terragrunt jobs:
 
 test helmfile infra pipeline:
   rules:
-  - changes:
+  - if: $CI_PIPELINE_SOURCE != 'merge_request_event'
+    changes:
     - .gitlab-ci.yml
     - generic/**/*
     - helmfile-infra/**/*
@@ -54,7 +59,8 @@ test helmfile infra pipeline:
 
 test python jobs:
   rules:
-  - changes:
+  - if: $CI_PIPELINE_SOURCE != 'merge_request_event'
+    changes:
     - .gitlab-ci.yml
     - generic/**/*
     - python/**/*
