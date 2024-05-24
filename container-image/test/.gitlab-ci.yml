@@ -11,3 +11,5 @@ test:
     branch: $PROJECT_BRANCH
     project: devops/samples/utilaj
     strategy: depend
+  variables:
+    CI_LIBRARY_REF_NAME: $CI_COMMIT_REF_NAME

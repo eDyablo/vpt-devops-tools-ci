@@ -3,12 +3,14 @@ include:
 - generic/variables.gitlab-ci.yml
 
 variables:
-  KANIKO_IMAGE: gcr.io/kaniko-project/executor:v1.22.0-debug
+  KANIKO_IMAGE: gcr.io/kaniko-project/executor:debug
 
 .kaniko build container image job:
   stage: build
   resource_group: ${CI_COMMIT_REF_SLUG}
-  image: ${KANIKO_IMAGE}
+  image:
+    name: ${KANIKO_IMAGE}
+    entrypoint: [""]
   variables:
     DOCKERFILE_CONTEXT: .
     DOCKERFILE_NAME: Dockerfile
