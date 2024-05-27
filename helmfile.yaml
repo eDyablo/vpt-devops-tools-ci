@@ -17,13 +17,15 @@ values.
 {{- range $_, $entry := readDirEntries $infrastructurePath }}
   {{- if $entry.IsDir }}
     {{- $envPath := list $infrastructurePath $entry.Name | join "/" }}
+    {{- $envPaths := list $envPath }}
     {{- range readDir $envPath }}
       {{- if . | hasSuffix "reference" }}
         {{- $reference := . | readFile | trim }}
         {{- $envPath = list ($envPath | trimSuffix $entry.Name) $reference | join "" }}
+        {{- $envPaths = prepend $envPaths $envPath }}
       {{- end }}
     {{- end }}
-    {{- $environment := dict "path" $envPath }}
+    {{- $environment := dict "paths" $envPaths }}
     {{- $environments := set $environments $entry.Name $environment }}
   {{- end }}
 {{- end }}
@@ -49,7 +51,9 @@ environments: # generated from $environments collected by the code above
     - deploymentNamePrefix:
     - deploymentNameSuffix:
     - infrastructure/values.yaml
-    - {{ list (get "path" $data) "values.yaml" | join "/" }}
+    {{- range get "paths" $data }}
+    - {{ list . "values.yaml" | join "/" }}
+    {{- end }}
     {{- with env "DEPLOYMENT_NAME_PREFIX" }}
     - deploymentNamePrefix: {{ . }}
     {{- end }}
