@@ -5,6 +5,10 @@ templates:
     labels:
       deployment: {{ .Values.deploymentBaseName }}
     values:
+    {{- with .Values | getOrNil "image.pullPolicy" }}
+    - image:
+        pullPolicy: {{ . }}
+    {{- end }}
     {{- with .Values | getOrNil "image.registry" }}
     - image:
         registry: {{ . }}
