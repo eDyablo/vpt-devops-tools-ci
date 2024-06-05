@@ -46,11 +46,15 @@ templates:
         - host: {{
             list
               (list
-                $.Values.deploymentName
-                $.Values.deploymentNamespace
+                ($.Values | getOrNil "hostNamePrefix")
+                (list
+                  ($.Values | getOrNil (list $.Values.deploymentBaseName "hostNameBase" | join ".")
+                    | default $.Values.deploymentName)
+                  $.Values.deploymentNamespace
+                  | join "-")
                 ($.Values | getOrNil "hostNameSuffix")
                 | compact
-                | join "-")
+                | join "")
               $.Values.hostDomain
               | join "."
           }}
