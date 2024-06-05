@@ -20,3 +20,42 @@ templates:
     {{- with .Values | getOrNil .Values.deploymentBaseName }}
     - {{- . | toYaml | trim | nindent 6 }}
     {{- end }}
+  uses internal alb ingress:
+    values:
+    {{- $infrastructureAlb := .Values | getOrNil "alb" }}
+    {{- $deploymentAlb := .Values | getOrNil .Values.deploymentBaseName | getOrNil "alb" }}
+    {{- with $infrastructureAlb | merge $deploymentAlb }}
+    {{- if . | getOrNil "enabled" }}
+    - ingress:
+        annotations:
+          {{- with . | getOrNil "certificateArn" }}
+          alb.ingress.kubernetes.io/certificate-arn: {{ . }}
+          {{- end }}
+          {{- with . | getOrNil "groupName" }}
+          alb.ingress.kubernetes.io/group.name: {{ . }}
+          {{- end }}
+          {{- with . | getOrNil "healthcheck.path" }}
+          alb.ingress.kubernetes.io/healthcheck-path: {{ . }}
+          {{- end }}
+          alb.ingress.kubernetes.io/listen-ports: {{
+            list (dict "HTTP" 80) (dict "HTTPS" 443) | toJson | quote }}
+          alb.ingress.kubernetes.io/scheme: internal
+          alb.ingress.kubernetes.io/target-type: ip
+        className: alb
+        hosts:
+        - host: {{
+            list
+              (list
+                $.Values.deploymentName
+                $.Values.deploymentNamespace
+                ($.Values | getOrNil "hostNameSuffix")
+                | compact
+                | join "-")
+              $.Values.hostDomain
+              | join "."
+          }}
+          paths:
+          - path: /
+            pathType: Prefix
+    {{- end }}
+    {{- end }}
