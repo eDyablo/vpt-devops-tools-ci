@@ -35,6 +35,8 @@ deploy environment:
     - # Notify Teams channel about end of deployment
       - !reference [.teams-notification, deploy-end]
   - fi
+  variables:
+    SELECT_DEPLOYMENT: $INFRA_SELECT_DEPLOYMENT
 
 remove environment:
   extends: .destroy helmfile job

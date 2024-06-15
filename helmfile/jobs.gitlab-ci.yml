@@ -88,6 +88,9 @@ variables:
     ${HELMFILE_VALUES_FILE:+--state-values-file=$HELMFILE_VALUES_FILE}
     $DEPLOYMENT_SELECTORS
   after_script:
+  - >-
+    DEPLOYMENT_SELECTORS=$(for deployment_name in $SELECT_DEPLOYMENT; do
+    ${deployment_name:+echo --selector=deployment=${deployment_name}}; done)
   - |- # Write envs
     (
       echo "DEPLOYMENT_NAME_PREFIX=${DEPLOYMENT_NAME_PREFIX}"

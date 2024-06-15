@@ -23,6 +23,7 @@ environment:
     include:
     - file: helmfile-infra/environment-pipeline.gitlab-ci.yml
       project: devops/tools/ci
+      ref: $CI_LIBRARY_REF_NAME
     strategy: depend
   variables:
     DEPLOYMENT_NAME_SUFFIX: $DEPLOYMENT_NAME_SUFFIX
@@ -30,3 +31,4 @@ environment:
     ENVIRONMENT_NAME: $UPSTREAM_ENVIRONMENT_NAME
     HELMFILE_ENVIRONMENT: $HELMFILE_ENVIRONMENT
     HELMFILE_ENVS: $HELMFILE_ENVS
+    INFRA_SELECT_DEPLOYMENT: $INFRA_SELECT_DEPLOYMENT
